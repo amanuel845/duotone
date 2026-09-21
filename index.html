@@ -22,7 +22,6 @@
     -webkit-tap-highlight-color:transparent;
   }
 
-  /* HEADER */
   header{
     flex:0 0 auto;display:flex;align-items:center;gap:8px;
     padding:9px 12px;padding-top:calc(9px + env(safe-area-inset-top));
@@ -40,24 +39,22 @@
     padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;
   }
 
-  /* TABS */
   .tabs{
-    flex:0 0 auto;display:flex;gap:6px;padding:6px 10px;
+    flex:0 0 auto;display:flex;gap:4px;padding:6px 10px;
     background:var(--surface);border-bottom:1px solid var(--line);
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
   }
   .tab{
-    flex:1 1 0;min-width:0;
-    padding:8px 6px;
-    font:inherit;font-size:.76rem;font-weight:600;
+    flex:0 0 auto;padding:7px 10px;
+    font:inherit;font-size:.72rem;font-weight:600;
     color:var(--muted);background:#f8fafc;
     border:1px solid var(--line);border-radius:8px;
-    cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    cursor:pointer;white-space:nowrap;
     transition:background .15s, color .15s, border-color .15s, transform .08s;
   }
   .tab:active{transform:scale(.985);}
   .tab.active{color:#fff;background:var(--accent);border-color:var(--accent);}
 
-  /* MAIN */
   main{
     flex:1 1 auto;min-height:0;overflow-y:auto;
     -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
@@ -70,7 +67,6 @@
     background:var(--surface);border:1px solid var(--line);
     border-radius:var(--radius);padding:10px;
   }
-
   label{
     display:block;font-size:.66rem;font-weight:700;letter-spacing:.05em;
     text-transform:uppercase;color:var(--muted);margin-bottom:4px;
@@ -132,7 +128,6 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* PROGRESS */
   .progress-card{padding:9px 10px 11px;}
   .progress-card:not([hidden]){margin-bottom:10px;}
   .progress-head{
@@ -151,10 +146,9 @@
   .bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a);}
   .bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important;}
 
-  /* LIST CARDS */
   .fonts-card{padding:0;overflow:hidden;}
   .fonts-list{
-    list-style:none;max-height:38vh;overflow-y:auto;
+    list-style:none;max-height:40vh;overflow-y:auto;
     -webkit-overflow-scrolling:touch;
   }
   .fonts-list li{
@@ -170,11 +164,13 @@
   .fdot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
   .fdot.ok{background:var(--ok);}
   .fdot.err{background:var(--err);}
+  .fdot.dir{background:#f59e0b;width:8px;height:8px;}
   .fname{
     flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
     white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
     font-size:.72rem;color:#334155;
   }
+  .fname.dir{color:#b45309;font-weight:600;}
   .fsize{
     flex:0 0 auto;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.68rem;
   }
@@ -194,7 +190,6 @@
   }
   .js-count{font-variant-numeric:tabular-nums;}
 
-  /* PREVIEW */
   .preview-card{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
   .card-head{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -219,7 +214,6 @@
   pre::-webkit-scrollbar-thumb{background:#334155;border-radius:999px;}
   pre::-webkit-scrollbar-track{background:transparent;}
 
-  /* FOOTER */
   footer{
     flex:0 0 auto;display:flex;align-items:flex-start;gap:7px;
     padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
@@ -244,24 +238,21 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header>
     <span class="logo" aria-hidden="true">⬇</span>
     <h1>Asset Fetcher</h1>
     <span class="chip" id="sizeChip">idle</span>
   </header>
 
-  <!-- TABS -->
   <nav class="tabs" role="tablist" aria-label="Mode">
     <button class="tab active" data-panel="css"   role="tab" aria-selected="true">CSS + Fonts</button>
+    <button class="tab"        data-panel="all"   role="tab" aria-selected="false">All Assets</button>
     <button class="tab"        data-panel="js"    role="tab" aria-selected="false">Remote JS</button>
     <button class="tab"        data-panel="local" role="tab" aria-selected="false">Local JS</button>
   </nav>
 
-  <!-- MAIN -->
   <main>
 
-    <!-- Shared progress -->
     <section class="card progress-card" id="progressCard" hidden>
       <div class="progress-head">
         <span id="pLeft">0 B</span>
@@ -272,7 +263,7 @@
       </div>
     </section>
 
-    <!-- ═════════ PANEL 1: CSS + Fonts ═════════ -->
+    <!-- ═════ PANEL 1: CSS + Fonts ═════ -->
     <div class="panel active" id="panel-css" role="tabpanel">
 
       <section class="card">
@@ -332,7 +323,65 @@
 
     </div>
 
-    <!-- ═════════ PANEL 2: Remote JS (Method 1) ═════════ -->
+    <!-- ═════ PANEL 2: All Assets (Method 1, generic) ═════ -->
+    <div class="panel" id="panel-all" role="tabpanel">
+
+      <section class="card">
+        <div class="field">
+          <label for="allDir">Directory URL</label>
+          <input id="allDir" type="url" inputmode="url"
+                 autocomplete="off" autocapitalize="off"
+                 autocorrect="off" spellcheck="false" enterkeyhint="go"
+                 placeholder="https://example.com/assets/">
+        </div>
+
+        <label class="toggle-row" for="allRecursive">
+          <input type="checkbox" id="allRecursive" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-text">
+            Recurse into subdirectories
+            <small>Fetches each subfolder's index (max depth 4).</small>
+          </span>
+        </label>
+
+        <label class="toggle-row" for="allUseProxy">
+          <input type="checkbox" id="allUseProxy" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-text">
+            Use API proxy <code>api/fetch.js</code>
+            <small>Required for cross-origin directories.</small>
+          </span>
+        </label>
+
+        <button id="allListBtn" type="button">
+          <span id="allListLabel">List all files</span>
+        </button>
+      </section>
+
+      <section class="card fonts-card" id="allFilesCard" hidden>
+        <div class="card-head">
+          <span>Assets</span>
+          <span class="meta" id="allFilesMeta">—</span>
+        </div>
+        <div class="js-toolbar">
+          <label class="js-selectall">
+            <input type="checkbox" id="allSelectAll" checked>
+            <span>Select all</span>
+          </label>
+          <span class="js-count" id="allCount">0 / 0</span>
+        </div>
+        <ul class="fonts-list" id="allFilesList"></ul>
+      </section>
+
+      <section class="card" id="allActionsCard" hidden>
+        <button id="allZipBtn" type="button">
+          <span id="allZipLabel">Download selected as ZIP</span>
+        </button>
+      </section>
+
+    </div>
+
+    <!-- ═════ PANEL 3: Remote JS ═════ -->
     <div class="panel" id="panel-js" role="tabpanel">
 
       <section class="card">
@@ -381,7 +430,7 @@
 
     </div>
 
-    <!-- ═════════ PANEL 3: Local JS (Method 2) ═════════ -->
+    <!-- ═════ PANEL 4: Local JS ═════ -->
     <div class="panel" id="panel-local" role="tabpanel">
 
       <section class="card">
@@ -432,7 +481,6 @@
 
   </main>
 
-  <!-- FOOTER -->
   <footer>
     <span class="dot" id="dot" aria-hidden="true"></span>
     <span id="status" role="status" aria-live="polite">Ready.</span>
@@ -442,17 +490,17 @@
 (function () {
   "use strict";
 
-  /* ── Defaults ─────────────────────────────────────────── */
-  const DEFAULT_CSS_URL  = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
-  const DEFAULT_CSS_NAME = "duotone.min.css";
-  const DEFAULT_JS_DIR   = "https://www.library.illinois.edu/assets/js/";
+  const DEFAULT_CSS_URL   = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
+  const DEFAULT_CSS_NAME  = "duotone.min.css";
+  const DEFAULT_ALL_DIR   = "https://www.library.illinois.edu/assets/";
+  const DEFAULT_JS_DIR    = "https://www.library.illinois.edu/assets/js/";
   const DEFAULT_LOCAL_DIR = "assets/js";
-  const PROXY_PATH       = "/api/fetch";
-  const LIST_LOCAL_PATH  = "/api/list-js";
+  const PROXY_PATH        = "/api/fetch";
+  const LIST_LOCAL_PATH   = "/api/list-js";
+  const MAX_DEPTH         = 4;
 
   const $ = (id) => document.getElementById(id);
 
-  /* ── Shared elements ──────────────────────────────────── */
   const progressCard = $("progressCard");
   const bar          = $("bar");
   const barFill      = $("barFill");
@@ -462,7 +510,6 @@
   const dot          = $("dot");
   const statusEl     = $("status");
 
-  /* ── Shared utilities ─────────────────────────────────── */
   const encoder = new TextEncoder();
 
   function fmtBytes(n) {
@@ -594,6 +641,7 @@
   const tabs   = document.querySelectorAll(".tab");
   const panels = {
     css:   $("panel-css"),
+    all:   $("panel-all"),
     js:    $("panel-js"),
     local: $("panel-local"),
   };
@@ -615,9 +663,7 @@
     });
   });
 
-  /* ══════════════════════════════════════════════════════════
-     Shared list-view factory (used by Remote + Local tabs)
-     ══════════════════════════════════════════════════════════ */
+  /* ── Generic list-view factory ───────────────────────── */
   function makeFileList(cfg) {
     const refs = {
       card:        $(cfg.cardId),
@@ -649,16 +695,17 @@
           });
 
           const d = document.createElement("span");
-          d.className = "fdot";
+          d.className = "fdot" + (f.isDir ? " dir" : "");
 
           const n = document.createElement("span");
-          n.className = "fname";
-          n.textContent = f.basename || f.name;
+          n.className = "fname" + (f.isDir ? " dir" : "");
+          n.textContent = f.isDir ? "📁 " + f.basename : f.basename;
 
           const s = document.createElement("span");
           s.className = "fsize";
-          s.textContent = typeof f.size === "number" && f.size > 0
-            ? fmtBytes(f.size) : "—";
+          s.textContent = f.isDir
+            ? "dir"
+            : (typeof f.size === "number" && f.size > 0 ? fmtBytes(f.size) : "—");
 
           li.append(cb, d, n, s);
           refs.list.appendChild(li);
@@ -667,22 +714,25 @@
 
         refs.card.hidden        = false;
         refs.actionsCard.hidden = false;
-        refs.meta.textContent   = api.files.length + " found";
+        refs.meta.textContent   = api.files.filter((f) => !f.isDir).length +
+                                  " files · " +
+                                  api.files.filter((f) => f.isDir).length + " dirs";
         refs.selectAll.checked  = true;
         refs.selectAll.indeterminate = false;
         api.updateCount();
       },
 
       updateCount() {
-        const sel = api.files.filter((f) => f.checked).length;
-        refs.count.textContent   = sel + " / " + api.files.length;
-        refs.selectAll.checked   = sel > 0 && sel === api.files.length;
-        refs.selectAll.indeterminate = sel > 0 && sel < api.files.length;
+        const sel = api.files.filter((f) => f.checked && !f.isDir).length;
+        refs.count.textContent   = sel + " / " +
+                                   api.files.filter((f) => !f.isDir).length;
+        refs.selectAll.checked   = sel > 0 && sel === api.files.filter((f) => !f.isDir).length;
+        refs.selectAll.indeterminate = sel > 0 && sel < api.files.filter((f) => !f.isDir).length;
       },
 
       updateRow(f, state, size) {
         if (!f._el) return;
-        f._el.d.className = "fdot" + (state ? " " + state : "");
+        f._el.d.className = "fdot" + (f.isDir ? " dir" : "") + (state ? " " + state : "");
         if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
         else if (state === "err")     f._el.s.textContent = "failed";
         else if (state === "loading") f._el.s.textContent = "…";
@@ -695,12 +745,16 @@
         api.files = [];
       },
 
-      selected() { return api.files.filter((f) => f.checked); },
+      selected() {
+        // Only files can be downloaded; directories are skipped
+        return api.files.filter((f) => f.checked && !f.isDir);
+      },
     };
 
     refs.selectAll.addEventListener("change", () => {
       const on = refs.selectAll.checked;
       for (const f of api.files) {
+        if (f.isDir) continue;
         f.checked = on;
         if (f._el) f._el.cb.checked = on;
       }
@@ -711,257 +765,262 @@
   }
 
   /* ══════════════════════════════════════════════════════════
-     TAB 1 — CSS + Fonts
+     Shared: parse an Apache/nginx style index HTML
      ══════════════════════════════════════════════════════════ */
-  const urlInput    = $("url");
-  const fnameInput  = $("fname");
-  const useProxy    = $("useProxy");
-  const bundleFonts = $("bundleFonts");
-  const goBtn       = $("go");
-  const btnLabel    = $("btnLabel");
-  const fontsCard   = $("fontsCard");
-  const fontsList   = $("fontsList");
-  const fontsMeta   = $("fontsMeta");
-  const previewEl   = $("preview");
-  const metaEl      = $("meta");
+  function parseIndexHtml(html, baseUrl) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const links = doc.querySelectorAll("a[href]");
+    const seen = new Set();
+    const entries = [];
 
-  urlInput.value   = DEFAULT_CSS_URL;
-  fnameInput.value = DEFAULT_CSS_NAME;
+    for (const a of links) {
+      const href = (a.getAttribute("href") || "").trim();
+      if (!href) continue;
+      if (href.startsWith("#") || href.startsWith("?")) continue;
+      // Skip sort links and parent dir
+      if (href === "/" || href === "./" || href === "../") continue;
+      if (/^\?/.test(href)) continue;   // column sort links
 
-  let fnameTouched = false;
-  fnameInput.addEventListener("input", () => { fnameTouched = true; });
-  urlInput.addEventListener("input", () => {
-    if (!fnameTouched) {
+      let resolved;
+      try { resolved = new URL(href, baseUrl); }
+      catch { continue; }
+
+      // Same origin + path prefix as base (avoid external links in the index)
+      const baseObj = new URL(baseUrl);
+      if (resolved.origin !== baseObj.origin) continue;
+
+      const isDir = resolved.pathname.endsWith("/");
+      // Strip query/hash for the clean URL
+      const clean = resolved.origin + resolved.pathname;
+      if (seen.has(clean)) continue;
+      seen.add(clean);
+
+      let basename;
       try {
-        const u = new URL(urlInput.value.trim());
-        const seg = u.pathname.split("/").filter(Boolean).pop();
-        fnameInput.value = seg ? decodeURIComponent(seg) : "download.css";
-      } catch {}
+        const parts = resolved.pathname.replace(/\/$/, "").split("/");
+        basename = decodeURIComponent(parts.pop() || "");
+      } catch { basename = ""; }
+      if (!basename) continue;
+
+      entries.push({
+        url: clean,
+        basename,
+        isDir,
+        // Relative path inside the listing root (used for ZIP structure)
+        relPath: null,   // filled in by caller
+      });
     }
+    return entries;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     TAB 2 — All Assets (recursive generic listing)
+     ══════════════════════════════════════════════════════════ */
+  const allDirInput    = $("allDir");
+  const allRecursive   = $("allRecursive");
+  const allUseProxy    = $("allUseProxy");
+  const allListBtn     = $("allListBtn");
+  const allListLabel   = $("allListLabel");
+  const allZipBtn      = $("allZipBtn");
+
+  allDirInput.value = DEFAULT_ALL_DIR;
+
+  const allList = makeFileList({
+    cardId: "allFilesCard", listId: "allFilesList", metaId: "allFilesMeta",
+    selectAllId: "allSelectAll", countId: "allCount", actionsCardId: "allActionsCard",
   });
 
-  function busyCss(on) {
-    goBtn.disabled = urlInput.disabled = fnameInput.disabled =
-      useProxy.disabled = bundleFonts.disabled = on;
+  function busyAll(on) {
+    allListBtn.disabled = allZipBtn.disabled =
+      allDirInput.disabled = allRecursive.disabled = allUseProxy.disabled = on;
+    allList.refs.selectAll.disabled = on;
 
-    const existing = goBtn.querySelector(".spinner");
+    const existing = allListBtn.querySelector(".spinner");
     if (on) {
       if (!existing) {
         const s = document.createElement("span");
         s.className = "spinner";
-        goBtn.insertBefore(s, btnLabel);
+        allListBtn.insertBefore(s, allListLabel);
       }
-      btnLabel.textContent = "Fetching…";
+      allListLabel.textContent = "Working…";
     } else {
       if (existing) existing.remove();
-      btnLabel.textContent = "Fetch & Download";
+      allListLabel.textContent = "List all files";
     }
   }
 
-  const URL_RE = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/gi;
-  const FONT_EXT_RE = /\.(woff2?|ttf|otf|eot|svg)([?#].*)?$/i;
+  /**
+   * BFS through the directory index starting at rootUrl.
+   * Returns { files: [...], dirs: N } where each file has:
+   *   { url, basename, relPath, size? }
+   */
+  async function listAllAssets(rootUrl, viaProxy, recursive) {
+    const root = new URL(rootUrl);
+    if (!root.pathname.endsWith("/")) root.pathname += "/";
 
-  function extractFontUrls(cssText, cssBaseUrl) {
-    const out = [];
-    const seen = new Set();
-    let m;
-    URL_RE.lastIndex = 0;
-    while ((m = URL_RE.exec(cssText)) !== null) {
-      const raw = (m[2] || "").trim();
-      if (!raw) continue;
-      if (raw.startsWith("data:") || raw.startsWith("#") || raw.startsWith("blob:")) continue;
-      if (!FONT_EXT_RE.test(raw)) continue;
+    const rootPath = root.pathname;   // e.g. "/assets/"
+    const queue = [{ url: root.href, depth: 0 }];
+    const visited = new Set([root.href]);
+    const files = [];
+    const dirCount = { n: 0 };
 
-      let resolved;
-      try { resolved = normalizeUrl(new URL(raw, cssBaseUrl).href); }
-      catch { continue; }
-      if (seen.has(resolved)) continue;
-      seen.add(resolved);
+    while (queue.length) {
+      const { url, depth } = queue.shift();
 
-      let basename;
-      try {
-        const u = new URL(resolved);
-        basename = decodeURIComponent(u.pathname.split("/").pop() || "font.bin");
-      } catch { basename = "font.bin"; }
+      setState("loading",
+        "Scanning " + new URL(url).pathname +
+        (depth ? " (depth " + depth + ")" : "") + "…");
 
-      out.push({ raw, resolved, basename });
-    }
+      const res = await fetch(buildFetchUrl(url, viaProxy), {
+        method: "GET", mode: "cors", credentials: "omit",
+        cache: "no-cache", redirect: "follow"
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status + " @ " + url);
+      const ct = res.headers.get("content-type") || "";
+      const html = await res.text();
 
-    const counts = new Map();
-    for (const f of out) {
-      const n = counts.get(f.basename) || 0;
-      counts.set(f.basename, n + 1);
-      if (n > 0) {
-        const d = f.basename.lastIndexOf(".");
-        f.zipName = d > 0
-          ? f.basename.slice(0, d) + "_" + n + f.basename.slice(d)
-          : f.basename + "_" + n;
-      } else {
-        f.zipName = f.basename;
+      if (!/html/i.test(ct) && !/<a\s/i.test(html)) {
+        // Not an index page — treat as a leaf we can't traverse
+        continue;
       }
-      f.zipPath = "webfonts/" + f.zipName;
+
+      const entries = parseIndexHtml(html, url);
+
+      for (const e of entries) {
+        // Only keep entries that descend from rootPath
+        const u = new URL(e.url);
+        if (!u.pathname.startsWith(rootPath)) continue;
+
+        // Compute the relative path inside the listing root
+        let rel = u.pathname.slice(rootPath.length);
+        try { rel = decodeURIComponent(rel); } catch {}
+        if (rel.endsWith("/")) rel = rel.slice(0, -1);
+
+        if (e.isDir) {
+          dirCount.n++;
+          if (recursive && depth + 1 <= MAX_DEPTH && !visited.has(e.url)) {
+            visited.add(e.url);
+            queue.push({ url: e.url, depth: depth + 1 });
+          }
+        } else {
+          files.push({
+            url: e.url,
+            basename: e.basename,
+            relPath: rel,          // for ZIP structure
+            isDir: false,
+          });
+        }
+      }
     }
-    return out;
+
+    files.sort((a, b) => a.relPath.localeCompare(b.relPath));
+    return { files, dirs: dirCount.n };
   }
 
-  function rewriteCssUrls(cssText, cssBaseUrl, fontByUrl) {
-    URL_RE.lastIndex = 0;
-    return cssText.replace(URL_RE, (match, q, raw) => {
-      const trimmed = (raw || "").trim();
-      if (!trimmed) return match;
-      if (trimmed.startsWith("data:") || trimmed.startsWith("#") || trimmed.startsWith("blob:")) return match;
-      let resolved;
-      try { resolved = normalizeUrl(new URL(trimmed, cssBaseUrl).href); }
-      catch { return match; }
-      const f = fontByUrl.get(resolved);
-      if (!f || !f.data) return match;
-      return 'url("' + f.zipPath + '")';
-    });
-  }
-
-  function renderFonts(fonts) {
-    fontsList.textContent = "";
-    for (const f of fonts) {
-      const li = document.createElement("li");
-      li.title = f.resolved;
-      const d = document.createElement("span"); d.className = "fdot";
-      const n = document.createElement("span"); n.className = "fname"; n.textContent = f.zipName;
-      const s = document.createElement("span"); s.className = "fsize"; s.textContent = "…";
-      li.append(d, n, s);
-      fontsList.appendChild(li);
-      f._el = { d, s };
-    }
-    fontsCard.hidden = false;
-    fontsMeta.textContent = fonts.length + " found";
-  }
-
-  function updateFontUi(f, state, size) {
-    if (!f._el) return;
-    f._el.d.className = "fdot" + (state ? " " + state : "");
-    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
-    else if (state === "err") f._el.s.textContent = "failed";
-  }
-
-  async function runCss() {
-    const rawUrl = urlInput.value.trim();
-    const name   = sanitizeFilename(fnameInput.value);
-    const proxy  = useProxy.checked;
-    const bundle = bundleFonts.checked;
+  async function runAllList() {
+    const rawUrl = allDirInput.value.trim();
+    const proxy  = allUseProxy.checked;
+    const recurse = allRecursive.checked;
 
     let parsed;
     try { parsed = new URL(rawUrl); }
-    catch { setState("err", "Invalid URL."); urlInput.focus(); return; }
+    catch { setState("err", "Invalid directory URL."); allDirInput.focus(); return; }
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
       setState("err", "Only http(s) URLs are supported."); return;
     }
 
-    busyCss(true);
-    setState("loading", (proxy ? "Proxying · " : "Direct · ") + parsed.hostname + "…");
+    busyAll(true);
+    setState("loading", "Listing " + parsed.hostname + "…");
     showProgress(true);
     resetProgress();
-    fontsCard.hidden = true;
-    fontsList.textContent = "";
-    metaEl.textContent = "—";
-    previewEl.textContent = "// Fetching CSS…";
+    bar.classList.add("indet");
+    allList.clear();
 
     try {
-      const cssFetchUrl = buildFetchUrl(rawUrl, proxy);
-      const { blob: cssBlob, type: cssType } = await fetchWithProgress(cssFetchUrl, setProgress);
-      const cssText = await cssBlob.text();
+      const { files, dirs } = await listAllAssets(rawUrl, proxy, recurse);
 
-      bar.classList.add("done");
+      bar.classList.remove("indet"); bar.classList.add("done");
       barFill.style.width = "100%";
-      const shortCssType = (cssType || "text/css").split(";")[0];
-      metaEl.textContent = shortCssType + " · " + fmtBytes(cssBlob.size) + (proxy ? " · proxied" : "");
-      sizeChip.textContent = fmtBytes(cssBlob.size);
+      pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
+      pRight.textContent = "";
 
-      if (!bundle) {
-        triggerDownload(cssBlob, name);
-        previewEl.textContent = buildPreview(cssText);
-        setState("ok", "Saved “" + name + "” (" + fmtBytes(cssBlob.size) + ")" + (proxy ? " via proxy" : ""));
+      if (files.length === 0) {
+        setState("err", "No files found under " + parsed.pathname);
+        allList.clear();
         return;
       }
 
-      const fonts = extractFontUrls(cssText, rawUrl);
-
-      if (fonts.length === 0) {
-        triggerDownload(cssBlob, name);
-        previewEl.textContent = buildPreview(cssText);
-        setState("ok", "No fonts found — saved CSS only (" + fmtBytes(cssBlob.size) + ")");
-        return;
-      }
-
-      renderFonts(fonts);
-      setState("loading", fonts.length + " font" + (fonts.length === 1 ? "" : "s") + " to fetch…");
-
-      const byUrl = new Map();
-      for (const f of fonts) byUrl.set(f.resolved, f);
-
-      let okCount = 0, failCount = 0;
-
-      for (let i = 0; i < fonts.length; i++) {
-        const f = fonts[i];
-        updateFontUi(f, "loading");
-        setState("loading", "Font " + (i + 1) + "/" + fonts.length + " · " + f.zipName);
-        resetProgress();
-        bar.classList.add("indet");
-        try {
-          const { blob: fb } = await fetchWithProgress(buildFetchUrl(f.resolved, proxy), setProgress);
-          const data = new Uint8Array(await fb.arrayBuffer());
-          f.data = data; okCount++;
-          bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
-          updateFontUi(f, "ok", data.length);
-        } catch (err) {
-          f.error = err && err.message ? err.message : String(err);
-          failCount++;
-          bar.classList.remove("indet"); bar.classList.add("fail");
-          updateFontUi(f, "err");
-        }
-      }
-
-      const rewritten = rewriteCssUrls(cssText, rawUrl, byUrl);
-      const cssBytes  = encoder.encode(rewritten);
-
-      const zipFiles = [{ name, data: cssBytes }];
-      for (const f of fonts) if (f.data) zipFiles.push({ name: f.zipPath, data: f.data });
-
-      const zipBlob = buildZip(zipFiles);
-      const zipName = name.replace(/\.[^.]*$/, "") + ".zip";
-      triggerDownload(zipBlob, zipName);
-
-      fontsMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
-      previewEl.textContent = buildPreview(rewritten);
-      metaEl.textContent =
-        shortCssType + " + " + okCount + " font" + (okCount === 1 ? "" : "s") +
-        " · " + fmtBytes(zipBlob.size);
-      sizeChip.textContent = fmtBytes(zipBlob.size);
-
-      setState(
-        failCount && !okCount ? "err" : "ok",
-        "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
-        (failCount ? " · " + failCount + " font" + (failCount === 1 ? "" : "s") + " failed" : "")
+      allList.render(files);
+      setState("ok",
+        "Found " + files.length + " file" + (files.length === 1 ? "" : "s") +
+        (recurse && dirs ? " across " + dirs + " dir" + (dirs === 1 ? "" : "s") : "")
       );
+      sizeChip.textContent = files.length + " files";
     } catch (err) {
       console.error(err);
       bar.classList.remove("indet", "done"); bar.classList.add("fail");
-      barFill.style.width = "100%"; pRight.textContent = "";
+      barFill.style.width = "100%";
+      setState("err", "Failed: " + (err && err.message ? err.message : String(err)));
       sizeChip.textContent = "failed";
-      let msg = "Failed: " + (err && err.message ? err.message : String(err));
-      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
-        msg += " — likely CORS. Enable the API proxy and try again.";
-      } else if (proxy && /HTTP 5\d\d/.test(msg)) {
-        msg += " — check the /api/fetch deployment logs.";
-      }
-      previewEl.textContent = "// " + msg;
-      metaEl.textContent = "error";
-      setState("err", msg);
     } finally {
-      busyCss(false);
+      busyAll(false);
     }
   }
 
+  async function runAllZip() {
+    const proxy    = allUseProxy.checked;
+    const selected = allList.selected();
+    if (selected.length === 0) { setState("err", "No files selected."); return; }
+
+    busyAll(true);
+    setState("loading", "Downloading " + selected.length + " file" + (selected.length === 1 ? "" : "s") + "…");
+    showProgress(true);
+
+    const zipFiles = [];
+    let okCount = 0, failCount = 0;
+
+    for (let i = 0; i < selected.length; i++) {
+      const f = selected[i];
+      allList.updateRow(f, "loading");
+      setState("loading", "File " + (i + 1) + "/" + selected.length + " · " + f.relPath);
+      resetProgress();
+      bar.classList.add("indet");
+      try {
+        const { blob } = await fetchWithProgress(buildFetchUrl(f.url, proxy), setProgress);
+        const data = new Uint8Array(await blob.arrayBuffer());
+        f.data = data; okCount++;
+        bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
+        allList.updateRow(f, "ok", data.length);
+        // Preserve directory structure in the ZIP
+        zipFiles.push({ name: f.relPath || f.basename, data });
+      } catch (err) {
+        failCount++;
+        bar.classList.remove("indet", "done"); bar.classList.add("fail");
+        allList.updateRow(f, "err");
+      }
+    }
+
+    if (zipFiles.length === 0) { setState("err", "All downloads failed."); busyAll(false); return; }
+
+    const zipBlob = buildZip(zipFiles);
+    const zipName = sanitizeFilename(
+      (new URL(allDirInput.value.trim()).pathname.split("/").filter(Boolean).pop() || "assets")
+    ) + ".zip";
+    triggerDownload(zipBlob, zipName);
+
+    allList.refs.meta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
+    sizeChip.textContent = fmtBytes(zipBlob.size);
+
+    setState(
+      failCount && !okCount ? "err" : "ok",
+      "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
+      (failCount ? " · " + failCount + " failed" : "")
+    );
+    busyAll(false);
+  }
+
   /* ══════════════════════════════════════════════════════════
-     TAB 2 — Remote JS (Method 1: parse HTML directory listing)
+     TAB 3 — Remote JS (same as before, filters .js)
      ══════════════════════════════════════════════════════════ */
   const jsDirInput  = $("jsDir");
   const jsUseProxy  = $("jsUseProxy");
@@ -1020,44 +1079,13 @@
       throw new Error("Server did not return an HTML directory listing.");
     }
 
-    const doc   = new DOMParser().parseFromString(html, "text/html");
-    const links = doc.querySelectorAll("a[href]");
-    const seen  = new Set();
-    const out   = [];
-
-    for (const a of links) {
-      const href = (a.getAttribute("href") || "").trim();
-      if (!href || href.startsWith("#") || href.startsWith("?")) continue;
-      if (href === "/" || href === "./" || href === "../") continue;
-
-      let resolved;
-      try { resolved = new URL(href, dirUrl); }
-      catch { continue; }
-      if (!/\.js(\?|#|$)/i.test(resolved.pathname)) continue;
-
-      const clean = resolved.origin + resolved.pathname;
-      if (seen.has(clean)) continue;
-      seen.add(clean);
-
-      let basename;
-      try {
-        basename = decodeURIComponent(resolved.pathname.split("/").pop() || "file.js");
-      } catch { basename = "file.js"; }
-
-      out.push({ url: clean, basename });
-    }
+    const entries = parseIndexHtml(html, dirUrl);
+    const out = entries
+      .filter((e) => !e.isDir && /\.js(\?|#|$)/i.test(e.url))
+      .map((e) => ({ url: e.url, basename: e.basename }));
 
     out.sort((a, b) => a.basename.localeCompare(b.basename));
     return out;
-  }
-
-  function deriveZipBaseFromUrl(dirUrl) {
-    try {
-      const u = new URL(dirUrl);
-      const segs = u.pathname.split("/").filter(Boolean);
-      const last = segs.length ? segs[segs.length - 1] : u.hostname.replace(/\./g, "-");
-      return sanitizeFilename(last || "assets");
-    } catch { return "assets"; }
   }
 
   async function runRemoteList() {
@@ -1080,11 +1108,9 @@
 
     try {
       const files = await listRemoteJs(rawUrl, proxy);
-
       bar.classList.remove("indet"); bar.classList.add("done");
       barFill.style.width = "100%";
       pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
-      pRight.textContent = "";
 
       if (files.length === 0) {
         setState("err", "No .js files found in the directory listing.");
@@ -1145,7 +1171,9 @@
     if (zipFiles.length === 0) { setState("err", "All downloads failed."); busyRemote(false); return; }
 
     const zipBlob = buildZip(zipFiles);
-    const zipName = deriveZipBaseFromUrl(jsDirInput.value.trim()) + ".zip";
+    const zipName = sanitizeFilename(
+      (new URL(jsDirInput.value.trim()).pathname.split("/").filter(Boolean).pop() || "js")
+    ) + ".zip";
     triggerDownload(zipBlob, zipName);
 
     remoteList.refs.meta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
@@ -1160,7 +1188,7 @@
   }
 
   /* ══════════════════════════════════════════════════════════
-     TAB 3 — Local JS (Method 2: server-side fs.readdir)
+     TAB 4 — Local JS (Method 2, unchanged)
      ══════════════════════════════════════════════════════════ */
   const localDirInput  = $("localDir");
   const localRecursive = $("localRecursive");
@@ -1198,18 +1226,11 @@
     const url = LIST_LOCAL_PATH +
       "?dir=" + encodeURIComponent(dir) +
       (recursive ? "&recursive=1" : "");
-
-    const res = await fetch(url, {
-      method: "GET", credentials: "same-origin", cache: "no-store"
-    });
-
+    const res = await fetch(url, { method: "GET", credentials: "same-origin", cache: "no-store" });
     let payload;
     try { payload = await res.json(); }
     catch { throw new Error("Invalid JSON from " + LIST_LOCAL_PATH); }
-
-    if (!res.ok) {
-      throw new Error(payload.error || ("HTTP " + res.status));
-    }
+    if (!res.ok) throw new Error(payload.error || ("HTTP " + res.status));
     return payload;
   }
 
@@ -1227,17 +1248,13 @@
     try {
       const payload = await fetchLocalList(dir, recursive);
       const files = (payload.files || []).map((f) => ({
-        url:   f.path,                          // root-relative URL
-        path:  f.path,
-        name:  f.name,
-        basename: f.name,
-        size:  f.size,
+        url: f.path, path: f.path, name: f.name,
+        basename: f.name, size: f.size, relPath: f.name,
       }));
 
       bar.classList.remove("indet"); bar.classList.add("done");
       barFill.style.width = "100%";
       pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
-      pRight.textContent = "";
 
       if (files.length === 0) {
         setState("err", "No .js files found in /public/" + dir.replace(/^\/+/, ""));
@@ -1280,7 +1297,6 @@
       resetProgress();
       bar.classList.add("indet");
       try {
-        // Same-origin fetch — no proxy needed
         const { blob } = await fetchWithProgress(f.url, setProgress);
         const data = new Uint8Array(await blob.arrayBuffer());
         f.data = data; okCount++;
@@ -1312,7 +1328,7 @@
   }
 
   /* ══════════════════════════════════════════════════════════
-     ZIP writer (STORE-only, shared)
+     ZIP writer (STORE-only)
      ══════════════════════════════════════════════════════════ */
   const CRC_TABLE = (() => {
     const t = new Uint32Array(256);
@@ -1326,16 +1342,14 @@
 
   function crc32(bytes) {
     let c = 0xFFFFFFFF;
-    for (let i = 0; i < bytes.length; i++) {
-      c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
-    }
+    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
     return (c ^ 0xFFFFFFFF) >>> 0;
   }
 
   function dosDateTime(d) {
-    const date = ((d.getFullYear() - 198 JS0) << 9) | ((d.getMonth() +  (1) << 5) | d.getMethodDate();
-    const time = (d.getHours () << 11) | (d.getMinutes() << 51) | (d.getSeconds() >> 1);
-    return) { date: date & 0xFFFF, time: time & 0xFFFF };
+    const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    return { date: date & 0xFFFF, time: time & 0xFFFF };
   }
 
   function buildZip(files) {
@@ -1409,6 +1423,8 @@
 
   /* ── Event wiring ─────────────────────────────────────── */
   goBtn.addEventListener("click", runCss);
+  allListBtn.addEventListener("click", runAllList);
+  allZipBtn.addEventListener("click", runAllZip);
   jsListBtn.addEventListener("click", runRemoteList);
   jsZipBtn.addEventListener("click", runRemoteZip);
   localListBtn.addEventListener("click", runLocalList);
@@ -1418,6 +1434,9 @@
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); runCss(); }
     });
+  });
+  allDirInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); runAllList(); }
   });
   jsDirInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); runRemoteList(); }
