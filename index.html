@@ -1,291 +1,728 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch & Download duotone.min.css</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>Duotone CSS Fetcher</title>
+<style>
+  :root{
+    --bg:#f1f5f9;
+    --surface:#ffffff;
+    --line:#e2e8f0;
+    --text:#0f172a;
+    --muted:#64748b;
+    --accent:#2563eb;
+    --ok:#16a34a;
+    --err:#dc2626;
+    --code-bg:#0f172a;
+    --code-fg:#cbd5e1;
+    --radius:10px;
+  }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+  *{margin:0;padding:0;box-sizing:border-box;}
 
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            padding: 40px 36px;
-            max-width: 520px;
-            width: 100%;
-            text-align: center;
-        }
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 
-        h1 {
-            font-size: 1.5rem;
-            color: #1a1a2e;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
+  body{
+    height:100vh;
+    height:100dvh;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;
+    line-height:1.4;
+    color:var(--text);
+    background:var(--bg);
+    -webkit-tap-highlight-color:transparent;
+  }
 
-        .subtitle {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 28px;
-            word-break: break-all;
-            line-height: 1.5;
-        }
+  /* ── HEADER ─────────────────────────────── */
+  header{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 12px;
+    padding-top:calc(9px + env(safe-area-inset-top));
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    flex:0 0 auto;
+    width:22px;height:22px;
+    border-radius:6px;
+    background:var(--accent);
+    color:#fff;
+    display:grid;place-items:center;
+    font-size:.72rem;font-weight:700;line-height:1;
+  }
+  header h1{
+    font-size:.9rem;
+    font-weight:650;
+    letter-spacing:-.01em;
+    white-space:nowrap;
+  }
+  .chip{
+    margin-left:auto;
+    font-size:.66rem;
+    color:var(--muted);
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px 8px;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
 
-        .subtitle code {
-            background: #eef2f7;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
+  /* ── MAIN ───────────────────────────────── */
+  main{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 14px 32px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            width: 100%;
-        }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px;
+  }
 
-        .btn:hover:not(:disabled) {
-            background: #1d4ed8;
-        }
+  label{
+    display:block;
+    font-size:.66rem;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
 
-        .btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
+  input[type="url"],
+  input[type="text"]{
+    width:100%;
+    font:inherit;
+    font-size:16px;
+    padding:9px 10px;
+    color:var(--text);
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:8px;
+    outline:none;
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  input[type="url"]:focus,
+  input[type="text"]:focus{
+    background:#fff;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(37,99,235,.13);
+  }
+  input:disabled{opacity:.6;}
 
-        .btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
+  .field + .field{margin-top:8px;}
 
-        .btn svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
+  /* Proxy toggle */
+  .proxy-row{
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:8px 10px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:8px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .proxy-row input{position:absolute;opacity:0;pointer-events:none;}
+  .switch{
+    flex:0 0 auto;
+    width:34px;height:20px;
+    border-radius:999px;
+    background:#cbd5e1;
+    position:relative;
+    transition:background .18s;
+  }
+  .switch::after{
+    content:"";
+    position:absolute;
+    top:2px;left:2px;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.2);
+    transition:transform .18s;
+  }
+  .proxy-row input:checked ~ .switch{background:var(--accent);}
+  .proxy-row input:checked ~ .switch::after{transform:translateX(14px);}
+  .proxy-row input:disabled ~ .switch{opacity:.55;}
+  .proxy-text{
+    flex:1 1 auto;
+    min-width:0;
+    font-size:.78rem;
+    color:var(--text);
+    line-height:1.25;
+  }
+  .proxy-text code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.72rem;
+    background:#eef2f7;
+    padding:1px 5px;
+    border-radius:4px;
+    color:#334155;
+  }
+  .proxy-text small{
+    display:block;
+    font-size:.66rem;
+    color:var(--muted);
+    margin-top:1px;
+  }
 
-        .status {
-            margin-top: 24px;
-            font-size: 0.9rem;
-            min-height: 24px;
-            line-height: 1.5;
-            transition: color 0.3s;
-        }
+  button{
+    width:100%;
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font:inherit;
+    font-size:.9rem;
+    font-weight:650;
+    padding:11px 14px;
+    color:#fff;
+    background:var(--accent);
+    border:none;
+    border-radius:9px;
+    cursor:pointer;
+    transition:background .15s, transform .08s;
+  }
+  button:active:not(:disabled){transform:scale(.985);}
+  button:disabled{opacity:.65;cursor:not-allowed;}
 
-        .status.info {
-            color: #2563eb;
-        }
+  .spinner{
+    flex:0 0 auto;
+    width:14px;height:14px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff;
+    animation:spin .6s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
 
-        .status.success {
-            color: #16a34a;
-        }
+  /* ── PROGRESS ───────────────────────────── */
+  .progress-card{padding:9px 10px 11px;}
+  .progress-head{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    font-size:.68rem;
+    color:var(--muted);
+    margin-bottom:6px;
+    font-variant-numeric:tabular-nums;
+  }
+  .progress-head span{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .bar{
+    position:relative;
+    height:6px;
+    border-radius:999px;
+    background:#e2e8f0;
+    overflow:hidden;
+  }
+  .bar > i{
+    display:block;
+    height:100%;
+    width:0;
+    border-radius:999px;
+    background:linear-gradient(90deg,#3b82f6,#2563eb);
+    transition:width .15s linear;
+  }
+  .bar.indet > i{
+    width:35% !important;
+    transition:none;
+    animation:slide 1.15s ease-in-out infinite;
+  }
+  @keyframes slide{
+    0%  {transform:translateX(-110%);}
+    100%{transform:translateX(320%);}
+  }
+  .bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a);}
+  .bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important;}
 
-        .status.error {
-            color: #dc2626;
-        }
+  /* ── PREVIEW ────────────────────────────── */
+  .preview-card{
+    padding:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  .card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+    font-size:.66rem;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .card-head .meta{
+    font-weight:500;
+    font-size:.66rem;
+    letter-spacing:0;
+    text-transform:none;
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    max-width:60%;
+    text-align:right;
+  }
+  pre{
+    margin:0;
+    padding:10px;
+    max-height:40vh;
+    min-height:120px;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    background:var(--code-bg);
+    color:var(--code-fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:11px;
+    line-height:1.55;
+    white-space:pre;
+    tab-size:2;
+  }
+  pre::-webkit-scrollbar{width:7px;height:7px;}
+  pre::-webkit-scrollbar-thumb{background:#334155;border-radius:999px;}
+  pre::-webkit-scrollbar-track{background:transparent;}
 
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
+  /* ── FOOTER ─────────────────────────────── */
+  footer{
+    flex:0 0 auto;
+    display:flex;
+    align-items:flex-start;
+    gap:7px;
+    padding:8px 12px;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom));
+    background:var(--surface);
+    border-top:1px solid var(--line);
+    font-size:.72rem;
+    line-height:1.35;
+    color:var(--muted);
+  }
+  .dot{
+    flex:0 0 auto;
+    width:7px;height:7px;
+    margin-top:4px;
+    border-radius:50%;
+    background:#94a3b8;
+  }
+  .dot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
+  .dot.ok{background:var(--ok);}
+  .dot.err{background:var(--err);}
+  @keyframes pulse{50%{opacity:.25;}}
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .note {
-            margin-top: 20px;
-            font-size: 0.78rem;
-            color: #9ca3af;
-            line-height: 1.5;
-            text-align: left;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 16px;
-        }
-    </style>
+  #status{
+    flex:1 1 auto;
+    min-width:0;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    word-break:break-word;
+  }
+</style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>⬇ Download Font Awesome Duotone CSS</h1>
-        <p class="subtitle">
-            Fetches <code>duotone.min.css</code> from the University of Illinois Library and saves it to your device.
-        </p>
+  <!-- ══════════ HEADER ══════════ -->
+  <header>
+    <span class="logo" aria-hidden="true">⬇</span>
+    <h1>CSS Fetcher</h1>
+    <span class="chip" id="sizeChip">idle</span>
+  </header>
 
-        <button class="btn" id="downloadBtn">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
-            </svg>
-            <span id="btnText">Fetch &amp; Download</span>
-        </button>
+  <!-- ══════════ MAIN ══════════ -->
+  <main>
 
-        <div class="status" id="status" role="status" aria-live="polite"></div>
+    <!-- Form -->
+    <section class="card">
+      <div class="field">
+        <label for="url">Target URL</label>
+        <input id="url" type="url" inputmode="url"
+               autocomplete="off" autocapitalize="off"
+               autocorrect="off" spellcheck="false"
+               enterkeyhint="go"
+               placeholder="https://example.com/style.css">
+      </div>
 
-        <div class="note">
-            <strong>Note:</strong> This page makes a cross-origin request. If the server does not send the
-            <code>Access-Control-Allow-Origin</code> header, the browser will block the download.
-            In that case, you can still download the file directly by right-clicking the link below and choosing
-            “Save Link As…”.
-            <br><br>
-            <a href="https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css"
-               target="_blank" rel="noopener"
-               style="color:#2563eb;word-break:break-all;">
-                https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css
-            </a>
-        </div>
-    </div>
+      <div class="field">
+        <label for="fname">Download file name</label>
+        <input id="fname" type="text"
+               autocomplete="off" autocapitalize="off"
+               autocorrect="off" spellcheck="false"
+               enterkeyhint="go"
+               placeholder="duotone.min.css">
+      </div>
 
-    <script>
-        (function () {
-            "use strict";
+      <!-- Proxy toggle -->
+      <label class="proxy-row" for="useProxy">
+        <input type="checkbox" id="useProxy" checked>
+        <span class="switch" aria-hidden="true"></span>
+        <span class="proxy-text">
+          Use API proxy <code>api/fetch.js</code>
+          <small>Bypasses CORS — routes through your Vercel function.</small>
+        </span>
+      </label>
 
-            const TARGET_URL = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
-            const OUTPUT_FILENAME = "duotone.min.css";
+      <button id="go" type="button">
+        <span id="btnLabel">Fetch &amp; Download</span>
+      </button>
+    </section>
 
-            const btn = document.getElementById("downloadBtn");
-            const btnText = document.getElementById("btnText");
-            const statusEl = document.getElementById("status");
+    <!-- Progress -->
+    <section class="card progress-card" id="progressCard" hidden>
+      <div class="progress-head">
+        <span id="pLeft">0 B</span>
+        <span id="pRight"></span>
+      </div>
+      <div class="bar" id="bar" role="progressbar" aria-label="Download progress">
+        <i id="barFill"></i>
+      </div>
+    </section>
 
-            /**
-             * Update the status message with an optional CSS class.
-             */
-            function setStatus(message, type) {
-                statusEl.textContent = message;
-                statusEl.className = "status" + (type ? " " + type : "");
-            }
+    <!-- Preview -->
+    <section class="card preview-card">
+      <div class="card-head">
+        <span>Preview</span>
+        <span class="meta" id="meta">—</span>
+      </div>
+      <pre id="preview"><code>// Fetched CSS content will appear here.</code></pre>
+    </section>
 
-            /**
-             * Reset the button to its normal state.
-             */
-            function resetButton() {
-                btn.disabled = false;
-                btnText.textContent = "Fetch & Download";
-                // Remove any spinner
-                const spinner = btn.querySelector(".spinner");
-                if (spinner) spinner.remove();
-            }
+  </main>
 
-            /**
-             * Fetch the CSS file and trigger a browser download.
-             */
-            async function fetchAndDownload() {
-                // ---- UI: loading state ----
-                btn.disabled = true;
-                setStatus("Fetching file…", "info");
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer>
+    <span class="dot" id="dot" aria-hidden="true"></span>
+    <span id="status" role="status" aria-live="polite">Ready.</span>
+  </footer>
 
-                // Insert spinner next to the button text
-                const spinner = document.createElement("span");
-                spinner.className = "spinner";
-                btn.insertBefore(spinner, btnText);
-                btnText.textContent = "Downloading…";
+<script>
+(function () {
+  "use strict";
 
-                try {
-                    // ---- Fetch ----
-                    const response = await fetch(TARGET_URL, {
-                        method: "GET",
-                        mode: "cors",               // request CORS
-                        credentials: "omit",        // no cookies needed
-                        cache: "no-cache"           // always fresh
-                    });
+  /* ── Defaults ───────────────────────────────────────────── */
+  const DEFAULT_URL  = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
+  const DEFAULT_NAME = "duotone.min.css";
+  const PROXY_PATH   = "/api/fetch";
 
-                    if (!response.ok) {
-                        throw new Error(
-                            "Server responded with " +
-                            response.status +
-                            " " +
-                            response.statusText
-                        );
-                    }
+  /* ── Elements ───────────────────────────────────────────── */
+  const $ = (id) => document.getElementById(id);
 
-                    // ---- Convert to Blob ----
-                    const blob = await response.blob();
+  const urlInput     = $("url");
+  const fnameInput   = $("fname");
+  const useProxy     = $("useProxy");
+  const goBtn        = $("go");
+  const btnLabel     = $("btnLabel");
+  const progressCard = $("progressCard");
+  const bar          = $("bar");
+  const barFill      = $("barFill");
+  const pLeft        = $("pLeft");
+  const pRight       = $("pRight");
+  const previewEl    = $("preview");
+  const metaEl       = $("meta");
+  const sizeChip     = $("sizeChip");
+  const dot          = $("dot");
+  const statusEl     = $("status");
 
-                    // Optional: verify it looks like CSS (not strictly required)
-                    // if (!blob.type.includes("css") && !blob.type.includes("text")) {
-                    //     console.warn("Unexpected MIME type:", blob.type);
-                    // }
+  /* ── Init ───────────────────────────────────────────────── */
+  urlInput.value   = DEFAULT_URL;
+  fnameInput.value = DEFAULT_NAME;
 
-                    // ---- Create a temporary object URL ----
-                    const objectUrl = URL.createObjectURL(blob);
+  let fnameTouched = false;
+  fnameInput.addEventListener("input", () => { fnameTouched = true; });
 
-                    // ---- Build an invisible <a> and click it ----
-                    const a = document.createElement("a");
-                    a.href = objectUrl;
-                    a.download = OUTPUT_FILENAME;   // the name the browser will use
-                    a.style.display = "none";
+  urlInput.addEventListener("input", () => {
+    if (!fnameTouched) fnameInput.value = deriveName(urlInput.value);
+  });
 
-                    document.body.appendChild(a);
-                    a.click();
+  /* ── Helpers ────────────────────────────────────────────── */
+  function deriveName(rawUrl) {
+    try {
+      const u = new URL(rawUrl.trim());
+      const seg = u.pathname.split("/").filter(Boolean).pop();
+      return seg ? decodeURIComponent(seg) : "download.css";
+    } catch (_) {
+      return "download.css";
+    }
+  }
 
-                    // ---- Clean up ----
-                    // Remove the link after a short delay (needed in some browsers)
-                    setTimeout(function () {
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(objectUrl);
-                    }, 200);
+  function fmtBytes(n) {
+    if (!Number.isFinite(n) || n < 0) return "—";
+    if (n < 1024) return n + " B";
+    if (n < 1048576) return (n / 1024).toFixed(1) + " KB";
+    return (n / 1048576).toFixed(2) + " MB";
+  }
 
-                    // ---- Success feedback ----
-                    setStatus(
-                        "✅ Download started! Check your downloads folder for \"" +
-                        OUTPUT_FILENAME +
-                        "\".",
-                        "success"
-                    );
-                } catch (err) {
-                    // ---- Error feedback ----
-                    console.error("Download failed:", err);
+  function sanitizeFilename(name) {
+    return (name || "")
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
+      .replace(/^\.+/, "")
+      .trim() || "download.css";
+  }
 
-                    let userMessage = "❌ Download failed: " + err.message;
+  function setState(state, message) {
+    dot.className = "dot" +
+      (state === "loading" ? " loading" :
+       state === "ok"      ? " ok"      :
+       state === "err"     ? " err"     : "");
+    statusEl.textContent = message;
+  }
 
-                    // Give a more helpful hint for common CORS errors
-                    if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
-                        userMessage +=
-                            " — This is likely a CORS restriction. " +
-                            "Use the direct link at the bottom of the page instead.";
-                    }
+  function busy(on) {
+    goBtn.disabled       = on;
+    urlInput.disabled    = on;
+    fnameInput.disabled  = on;
+    useProxy.disabled    = on;
 
-                    setStatus(userMessage, "error");
-                } finally {
-                    resetButton();
-                }
-            }
+    const existing = goBtn.querySelector(".spinner");
+    if (on) {
+      if (!existing) {
+        const s = document.createElement("span");
+        s.className = "spinner";
+        goBtn.insertBefore(s, btnLabel);
+      }
+      btnLabel.textContent = "Fetching…";
+    } else {
+      if (existing) existing.remove();
+      btnLabel.textContent = "Fetch & Download";
+    }
+  }
 
-            // ---- Wire up the button ----
-            btn.addEventListener("click", fetchAndDownload);
-        })();
-    </script>
+  function showProgress(show) { progressCard.hidden = !show; }
 
+  function setProgress(received, total) {
+    if (total > 0) {
+      bar.classList.remove("indet");
+      const pct = Math.min(100, (received / total) * 100);
+      barFill.style.width = pct.toFixed(1) + "%";
+      pRight.textContent  = pct.toFixed(0) + "%";
+      pLeft.textContent   = fmtBytes(received) + " / " + fmtBytes(total);
+    } else {
+      bar.classList.add("indet");
+      pRight.textContent = "";
+      pLeft.textContent  = fmtBytes(received);
+    }
+  }
+
+  function buildPreview(text) {
+    const src = (text || "").trim();
+    if (!src) return "// (empty file)";
+    const HEAD = 900, TAIL = 300;
+    if (src.length <= HEAD + TAIL) return src;
+    const omitted = src.length - HEAD - TAIL;
+    return (
+      src.slice(0, HEAD).trimEnd() +
+      "\n\n/* ⋯ " + omitted.toLocaleString() + " more characters omitted ⋯ */\n\n" +
+      src.slice(-TAIL).trimStart()
+    );
+  }
+
+  function triggerDownload(blob, filename) {
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = filename;
+    a.rel = "noopener";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    }, 1200);
+  }
+
+  /**
+   * Build the URL we actually fetch. When proxy is on, we call our own
+   * /api/fetch endpoint with the target URL passed as a query string.
+   */
+  function buildFetchUrl(targetUrl, viaProxy) {
+    if (!viaProxy) return targetUrl;
+    return PROXY_PATH + "?url=" + encodeURIComponent(targetUrl);
+  }
+
+  /* ── Streaming fetch with progress ──────────────────────── */
+  async function fetchWithProgress(fetchUrl, onProgress) {
+    const response = await fetch(fetchUrl, {
+      method: "GET",
+      mode: "cors",
+      credentials: "omit",
+      cache: "no-cache",
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      // Try to surface a JSON error message from the proxy
+      let detail = "";
+      try {
+        const ct = response.headers.get("content-type") || "";
+        if (ct.includes("application/json")) {
+          const j = await response.json();
+          detail = j && (j.error || j.detail) ? " — " + (j.error || j.detail) : "";
+        }
+      } catch (_) {}
+      throw new Error("HTTP " + response.status + " " + response.statusText + detail);
+    }
+
+    const contentType = response.headers.get("Content-Type") || "";
+    const declared    = Number(response.headers.get("Content-Length")) || 0;
+
+    if (!response.body || typeof response.body.getReader !== "function") {
+      const blob = await response.blob();
+      onProgress(blob.size, blob.size);
+      return { blob, type: contentType, total: blob.size };
+    }
+
+    const reader = response.body.getReader();
+    const chunks = [];
+    let received = 0;
+    onProgress(0, declared);
+
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      received += value.length;
+      onProgress(received, declared);
+    }
+
+    const blob = new Blob(chunks, { type: contentType || "text/css" });
+    return { blob, type: contentType, total: received };
+  }
+
+  /* ── Main action ────────────────────────────────────────── */
+  async function run() {
+    const rawUrl = urlInput.value.trim();
+    const name   = sanitizeFilename(fnameInput.value);
+    const proxy  = useProxy.checked;
+
+    let parsed;
+    try {
+      parsed = new URL(rawUrl);
+    } catch (_) {
+      setState("err", "Invalid URL — please enter a full http(s) address.");
+      urlInput.focus();
+      return;
+    }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      setState("err", "Only http:// and https:// URLs are supported.");
+      urlInput.focus();
+      return;
+    }
+
+    const fetchUrl = buildFetchUrl(rawUrl, proxy);
+
+    busy(true);
+    setState(
+      "loading",
+      (proxy ? "Proxying via /api/fetch · " : "Direct · ") + parsed.hostname + "…"
+    );
+    showProgress(true);
+    bar.classList.remove("done", "fail");
+    barFill.style.width = "0%";
+    setProgress(0, 0);
+    metaEl.textContent = "—";
+    previewEl.textContent = "// Fetching" + (proxy ? " via proxy" : "") + "…";
+
+    try {
+      const { blob, type } = await fetchWithProgress(fetchUrl, setProgress);
+
+      bar.classList.remove("indet");
+      bar.classList.add("done");
+      barFill.style.width = "100%";
+      pLeft.textContent    = fmtBytes(blob.size);
+      pRight.textContent   = "100%";
+      sizeChip.textContent = fmtBytes(blob.size);
+
+      const shortType = (type || "unknown/unknown").split(";")[0];
+      metaEl.textContent = shortType + " · " + fmtBytes(blob.size) + (proxy ? " · proxied" : "");
+
+      let text = "";
+      try { text = await blob.text(); }
+      catch (_) { text = "// Unable to decode file as text."; }
+      previewEl.textContent = buildPreview(text);
+
+      triggerDownload(blob, name);
+
+      setState("ok",
+        "Saved “" + name + "” (" + fmtBytes(blob.size) + ")" +
+        (proxy ? " via proxy" : "")
+      );
+    } catch (err) {
+      console.error(err);
+
+      bar.classList.remove("indet", "done");
+      bar.classList.add("fail");
+      barFill.style.width = "100%";
+      pRight.textContent  = "";
+      sizeChip.textContent = "failed";
+
+      let msg = "Failed: " + (err && err.message ? err.message : String(err));
+
+      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
+        msg += " — likely CORS. Enable the API proxy and try again.";
+      } else if (proxy && /HTTP 5\d\d/.test(msg)) {
+        msg += " — check the /api/fetch deployment logs.";
+      }
+
+      previewEl.textContent = "// " + msg;
+      metaEl.textContent = "error";
+      setState("err", msg);
+    } finally {
+      busy(false);
+    }
+  }
+
+  /* ── Events ─────────────────────────────────────────────── */
+  goBtn.addEventListener("click", run);
+
+  [urlInput, fnameInput].forEach((el) => {
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        run();
+      }
+    });
+  });
+
+  /* Extra safety: prevent double-tap zoom on iOS */
+  let lastTouch = 0;
+  document.addEventListener("touchend", (e) => {
+    const now = Date.now();
+    if (now - lastTouch <= 300) e.preventDefault();
+    lastTouch = now;
+  }, { passive: false });
+
+})();
+</script>
 </body>
 </html>
