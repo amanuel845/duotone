@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#2563eb">
-<title>Duotone CSS Fetcher</title>
+<title>Asset Fetcher</title>
 <style>
   :root{
     --bg:#f1f5f9;
@@ -51,12 +51,40 @@
     padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;
   }
 
+  /* ── TABS ───────────────────────────────── */
+  .tabs{
+    flex:0 0 auto;
+    display:flex;gap:6px;
+    padding:6px 10px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .tab{
+    flex:1 1 0;
+    padding:8px 10px;
+    font:inherit;font-size:.82rem;font-weight:600;
+    color:var(--muted);
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:8px;
+    cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s, transform .08s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tab:active{transform:scale(.985);}
+  .tab.active{
+    color:#fff;background:var(--accent);border-color:var(--accent);
+  }
+
   /* ── MAIN ───────────────────────────────── */
   main{
     flex:1 1 auto;min-height:0;overflow-y:auto;
     -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
-    padding:10px;display:flex;flex-direction:column;gap:10px;
+    padding:10px;
   }
+
+  .panel{display:none;flex-direction:column;gap:10px;}
+  .panel.active{display:flex;}
 
   .card{
     background:var(--surface);border:1px solid var(--line);
@@ -130,6 +158,7 @@
 
   /* ── PROGRESS ───────────────────────────── */
   .progress-card{padding:9px 10px 11px;}
+  .progress-card:not([hidden]){margin-bottom:10px;}
   .progress-head{
     display:flex;justify-content:space-between;gap:8px;font-size:.68rem;
     color:var(--muted);margin-bottom:6px;font-variant-numeric:tabular-nums;
@@ -146,10 +175,10 @@
   .bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a);}
   .bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important;}
 
-  /* ── FONTS LIST ─────────────────────────── */
+  /* ── LIST CARDS (fonts + js files) ──────── */
   .fonts-card{padding:0;overflow:hidden;}
   .fonts-list{
-    list-style:none;max-height:34vh;overflow-y:auto;
+    list-style:none;max-height:38vh;overflow-y:auto;
     -webkit-overflow-scrolling:touch;
   }
   .fonts-list li{
@@ -157,6 +186,11 @@
     border-bottom:1px solid var(--line);font-size:.75rem;
   }
   .fonts-list li:last-child{border-bottom:none;}
+  .fonts-list li input[type="checkbox"]{
+    flex:0 0 auto;margin:0;cursor:pointer;
+    accent-color:var(--accent);
+    width:16px;height:16px;
+  }
   .fdot{
     flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#cbd5e1;
   }
@@ -171,6 +205,25 @@
   .fsize{
     flex:0 0 auto;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.68rem;
   }
+
+  .js-toolbar{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:7px 10px;
+    border-bottom:1px solid var(--line);
+    background:#fafbfc;
+    font-size:.72rem;color:var(--muted);
+  }
+  .js-selectall{
+    display:flex;align-items:center;gap:6px;
+    cursor:pointer;user-select:none;
+    font-weight:600;color:var(--text);margin:0;
+    text-transform:none;letter-spacing:0;font-size:.75rem;
+  }
+  .js-selectall input[type="checkbox"]{
+    margin:0;cursor:pointer;accent-color:var(--accent);
+    width:16px;height:16px;
+  }
+  .js-count{font-variant-numeric:tabular-nums;}
 
   /* ── PREVIEW ────────────────────────────── */
   .preview-card{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
@@ -223,88 +276,149 @@
 </head>
 <body>
 
+  <!-- ══════════ HEADER ══════════ -->
   <header>
     <span class="logo" aria-hidden="true">⬇</span>
-    <h1>CSS Fetcher</h1>
+    <h1>Asset Fetcher</h1>
     <span class="chip" id="sizeChip">idle</span>
   </header>
 
+  <!-- ══════════ TABS ══════════ -->
+  <nav class="tabs" role="tablist" aria-label="Mode">
+    <button class="tab active" data-panel="css" role="tab" aria-selected="true">CSS + Fonts</button>
+    <button class="tab" data-panel="js" role="tab" aria-selected="false">JS Directory</button>
+  </nav>
+
+  <!-- ══════════ MAIN ══════════ -->
   <main>
 
-    <!-- Form -->
-    <section class="card">
-      <div class="field">
-        <label for="url">Target URL</label>
-        <input id="url" type="url" inputmode="url"
-               autocomplete="off" autocapitalize="off"
-               autocorrect="off" spellcheck="false"
-               enterkeyhint="go"
-               placeholder="https://example.com/style.css">
-      </div>
-
-      <div class="field">
-        <label for="fname">Download file name</label>
-        <input id="fname" type="text"
-               autocomplete="off" autocapitalize="off"
-               autocorrect="off" spellcheck="false"
-               enterkeyhint="go"
-               placeholder="duotone.min.css">
-      </div>
-
-      <label class="toggle-row" for="useProxy">
-        <input type="checkbox" id="useProxy" checked>
-        <span class="switch" aria-hidden="true"></span>
-        <span class="toggle-text">
-          Use API proxy <code>api/fetch.js</code>
-          <small>Bypasses CORS for the CSS <em>and</em> its fonts.</small>
-        </span>
-      </label>
-
-      <label class="toggle-row" for="bundleFonts">
-        <input type="checkbox" id="bundleFonts" checked>
-        <span class="switch" aria-hidden="true"></span>
-        <span class="toggle-text">
-          Bundle fonts into a ZIP
-          <small>Extracts <code>url(...)</code> from <code>@font-face</code> and packages everything.</small>
-        </span>
-      </label>
-
-      <button id="go" type="button">
-        <span id="btnLabel">Fetch &amp; Download</span>
-      </button>
-    </section>
-
-    <!-- Progress -->
+    <!-- Shared progress -->
     <section class="card progress-card" id="progressCard" hidden>
       <div class="progress-head">
         <span id="pLeft">0 B</span>
         <span id="pRight"></span>
       </div>
-      <div class="bar" id="bar" role="progressbar" aria-label="Download progress">
+      <div class="bar" id="bar" role="progressbar" aria-label="Progress">
         <i id="barFill"></i>
       </div>
     </section>
 
-    <!-- Fonts list -->
-    <section class="card fonts-card" id="fontsCard" hidden>
-      <div class="card-head">
-        <span>Fonts</span>
-        <span class="meta" id="fontsMeta">—</span>
-      </div>
-      <ul class="fonts-list" id="fontsList"></ul>
-    </section>
+    <!-- ══════════ PANEL 1: CSS + Fonts ══════════ -->
+    <div class="panel active" id="panel-css" role="tabpanel">
 
-    <!-- Preview -->
-    <section class="card preview-card">
-      <div class="card-head">
-        <span>Preview</span>
-        <span class="meta" id="meta">—</span>
-      </div>
-      <pre id="preview"><code>// Fetched CSS content will appear here.</code></pre>
-    </section>
+      <section class="card">
+        <div class="field">
+          <label for="url">Target URL</label>
+          <input id="url" type="url" inputmode="url"
+                 autocomplete="off" autocapitalize="off"
+                 autocorrect="off" spellcheck="false"
+                 enterkeyhint="go"
+                 placeholder="https://example.com/style.css">
+        </div>
+
+        <div class="field">
+          <label for="fname">Download file name</label>
+          <input id="fname" type="text"
+                 autocomplete="off" autocapitalize="off"
+                 autocorrect="off" spellcheck="false"
+                 enterkeyhint="go"
+                 placeholder="duotone.min.css">
+        </div>
+
+        <label class="toggle-row" for="useProxy">
+          <input type="checkbox" id="useProxy" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-text">
+            Use API proxy <code>api/fetch.js</code>
+            <small>Bypasses CORS for the CSS <em>and</em> its fonts.</small>
+          </span>
+        </label>
+
+        <label class="toggle-row" for="bundleFonts">
+          <input type="checkbox" id="bundleFonts" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-text">
+            Bundle fonts into a ZIP
+            <small>Extracts <code>url(...)</code> from <code>@font-face</code> and packages everything.</small>
+          </span>
+        </label>
+
+        <button id="go" type="button">
+          <span id="btnLabel">Fetch &amp; Download</span>
+        </button>
+      </section>
+
+      <section class="card fonts-card" id="fontsCard" hidden>
+        <div class="card-head">
+          <span>Fonts</span>
+          <span class="meta" id="fontsMeta">—</span>
+        </div>
+        <ul class="fonts-list" id="fontsList"></ul>
+      </section>
+
+      <section class="card preview-card">
+        <div class="card-head">
+          <span>Preview</span>
+          <span class="meta" id="meta">—</span>
+        </div>
+        <pre id="preview"><code>// Fetched CSS content will appear here.</code></pre>
+      </section>
+
+    </div>
+
+    <!-- ══════════ PANEL 2: JS Directory ══════════ -->
+    <div class="panel" id="panel-js" role="tabpanel">
+
+      <section class="card">
+        <div class="field">
+          <label for="jsDir">Directory URL</label>
+          <input id="jsDir" type="url" inputmode="url"
+                 autocomplete="off" autocapitalize="off"
+                 autocorrect="off" spellcheck="false"
+                 enterkeyhint="go"
+                 placeholder="https://example.com/assets/js/">
+        </div>
+
+        <label class="toggle-row" for="jsUseProxy">
+          <input type="checkbox" id="jsUseProxy" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-text">
+            Use API proxy <code>api/fetch.js</code>
+            <small>Required if the directory or files are cross-origin.</small>
+          </span>
+        </label>
+
+        <button id="jsListBtn" type="button">
+          <span id="jsListLabel">List JS files</span>
+        </button>
+      </section>
+
+      <section class="card fonts-card" id="jsFilesCard" hidden>
+        <div class="card-head">
+          <span>JS files</span>
+          <span class="meta" id="jsFilesMeta">—</span>
+        </div>
+        <div class="js-toolbar">
+          <label class="js-selectall">
+            <input type="checkbox" id="jsSelectAll" checked>
+            <span>Select all</span>
+          </label>
+          <span class="js-count" id="jsCount">0 / 0</span>
+        </div>
+        <ul class="fonts-list" id="jsFilesList"></ul>
+      </section>
+
+      <section class="card" id="jsActionsCard" hidden>
+        <button id="jsZipBtn" type="button">
+          <span id="jsZipLabel">Download selected as ZIP</span>
+        </button>
+      </section>
+
+    </div>
 
   </main>
 
+  <!-- ══════════ FOOTER ══════════ -->
   <footer>
     <span class="dot" id="dot" aria-hidden="true"></span>
     <span id="status" role="status" aria-live="polite">Ready.</span>
@@ -315,36 +429,55 @@
   "use strict";
 
   /* ── Defaults ───────────────────────────────────────────── */
-  const DEFAULT_URL  = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
-  const DEFAULT_NAME = "duotone.min.css";
-  const PROXY_PATH   = "/api/fetch";
+  const DEFAULT_CSS_URL  = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
+  const DEFAULT_CSS_NAME = "duotone.min.css";
+  const DEFAULT_JS_DIR   = "https://www.library.illinois.edu/assets/js/";
+  const PROXY_PATH       = "/api/fetch";
 
   /* ── Elements ───────────────────────────────────────────── */
   const $ = (id) => document.getElementById(id);
 
+  // Shared
+  const progressCard = $("progressCard");
+  const bar          = $("bar");
+  const barFill      = $("barFill");
+  const pLeft        = $("pLeft");
+  const pRight       = $("pRight");
+  const sizeChip     = $("sizeChip");
+  const dot          = $("dot");
+  const statusEl     = $("status");
+
+  // Tab 1 (CSS)
   const urlInput     = $("url");
   const fnameInput   = $("fname");
   const useProxy     = $("useProxy");
   const bundleFonts  = $("bundleFonts");
   const goBtn        = $("go");
   const btnLabel     = $("btnLabel");
-  const progressCard = $("progressCard");
-  const bar          = $("bar");
-  const barFill      = $("barFill");
-  const pLeft        = $("pLeft");
-  const pRight       = $("pRight");
   const fontsCard    = $("fontsCard");
   const fontsList    = $("fontsList");
   const fontsMeta    = $("fontsMeta");
   const previewEl    = $("preview");
   const metaEl       = $("meta");
-  const sizeChip     = $("sizeChip");
-  const dot          = $("dot");
-  const statusEl     = $("status");
 
-  /* ── Init ───────────────────────────────────────────────── */
-  urlInput.value   = DEFAULT_URL;
-  fnameInput.value = DEFAULT_NAME;
+  // Tab 2 (JS)
+  const jsDirInput     = $("jsDir");
+  const jsUseProxy     = $("jsUseProxy");
+  const jsListBtn      = $("jsListBtn");
+  const jsListLabel    = $("jsListLabel");
+  const jsFilesCard    = $("jsFilesCard");
+  const jsFilesList    = $("jsFilesList");
+  const jsFilesMeta    = $("jsFilesMeta");
+  const jsSelectAll    = $("jsSelectAll");
+  const jsCount        = $("jsCount");
+  const jsActionsCard  = $("jsActionsCard");
+  const jsZipBtn       = $("jsZipBtn");
+  const jsZipLabel     = $("jsZipLabel");
+
+  /* ── Init defaults ──────────────────────────────────────── */
+  urlInput.value   = DEFAULT_CSS_URL;
+  fnameInput.value = DEFAULT_CSS_NAME;
+  jsDirInput.value = DEFAULT_JS_DIR;
 
   let fnameTouched = false;
   fnameInput.addEventListener("input", () => { fnameTouched = true; });
@@ -352,7 +485,7 @@
     if (!fnameTouched) fnameInput.value = deriveName(urlInput.value);
   });
 
-  /* ── Utilities ──────────────────────────────────────────── */
+  /* ── Shared utilities ───────────────────────────────────── */
   const encoder = new TextEncoder();
 
   function deriveName(rawUrl) {
@@ -374,7 +507,7 @@
     return (name || "")
       .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
       .replace(/^\.+/, "")
-      .trim() || "download.css";
+      .trim() || "download";
   }
 
   function normalizeUrl(href) {
@@ -391,28 +524,14 @@
     statusEl.textContent = message;
   }
 
-  function busy(on) {
-    goBtn.disabled      = on;
-    urlInput.disabled   = on;
-    fnameInput.disabled = on;
-    useProxy.disabled   = on;
-    bundleFonts.disabled = on;
-
-    const existing = goBtn.querySelector(".spinner");
-    if (on) {
-      if (!existing) {
-        const s = document.createElement("span");
-        s.className = "spinner";
-        goBtn.insertBefore(s, btnLabel);
-      }
-      btnLabel.textContent = "Fetching…";
-    } else {
-      if (existing) existing.remove();
-      btnLabel.textContent = "Fetch & Download";
-    }
-  }
-
   function showProgress(show) { progressCard.hidden = !show; }
+
+  function resetProgress() {
+    bar.classList.remove("done", "fail", "indet");
+    barFill.style.width = "0%";
+    pLeft.textContent  = "0 B";
+    pRight.textContent = "";
+  }
 
   function setProgress(received, total) {
     if (total > 0) {
@@ -426,13 +545,6 @@
       pRight.textContent = "";
       pLeft.textContent  = received ? fmtBytes(received) : "0 B";
     }
-  }
-
-  function resetProgress() {
-    bar.classList.remove("done", "fail", "indet");
-    barFill.style.width = "0%";
-    pLeft.textContent  = "0 B";
-    pRight.textContent = "";
   }
 
   function buildPreview(text) {
@@ -465,7 +577,6 @@
     return PROXY_PATH + "?url=" + encodeURIComponent(targetUrl);
   }
 
-  /* ── Streaming fetch with progress ──────────────────────── */
   async function fetchWithProgress(fetchUrl, onProgress) {
     const response = await fetch(fetchUrl, {
       method: "GET", mode: "cors", credentials: "omit",
@@ -510,7 +621,52 @@
     return { blob, type: contentType };
   }
 
-  /* ── CSS @font-face / url() extraction ──────────────────── */
+  /* ── Tab switching ─────────────────────────────────────── */
+  const tabs = document.querySelectorAll(".tab");
+  const panels = { css: $("panel-css"), js: $("panel-js") };
+
+  tabs.forEach((t) => {
+    t.addEventListener("click", () => {
+      if (t.classList.contains("active")) return;
+      tabs.forEach((x) => {
+        const on = x === t;
+        x.classList.toggle("active", on);
+        x.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      Object.keys(panels).forEach((k) => {
+        panels[k].classList.toggle("active", k === t.dataset.panel);
+      });
+      showProgress(false);           // avoid stale progress when switching
+      setState("idle", "Ready.");
+      sizeChip.textContent = "idle";
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     TAB 1 — CSS + FONTS
+     ═══════════════════════════════════════════════════════════ */
+
+  function busyCss(on) {
+    goBtn.disabled       = on;
+    urlInput.disabled    = on;
+    fnameInput.disabled  = on;
+    useProxy.disabled    = on;
+    bundleFonts.disabled = on;
+
+    const existing = goBtn.querySelector(".spinner");
+    if (on) {
+      if (!existing) {
+        const s = document.createElement("span");
+        s.className = "spinner";
+        goBtn.insertBefore(s, btnLabel);
+      }
+      btnLabel.textContent = "Fetching…";
+    } else {
+      if (existing) existing.remove();
+      btnLabel.textContent = "Fetch & Download";
+    }
+  }
+
   const URL_RE = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/gi;
   const FONT_EXT_RE = /\.(woff2?|ttf|otf|eot|svg)([?#].*)?$/i;
 
@@ -518,7 +674,6 @@
     const out = [];
     const seen = new Set();
     let m;
-
     URL_RE.lastIndex = 0;
     while ((m = URL_RE.exec(cssText)) !== null) {
       const raw = (m[2] || "").trim();
@@ -529,7 +684,6 @@
       let resolved;
       try { resolved = normalizeUrl(new URL(raw, cssBaseUrl).href); }
       catch { continue; }
-
       if (seen.has(resolved)) continue;
       seen.add(resolved);
 
@@ -542,7 +696,6 @@
       out.push({ raw, resolved, basename });
     }
 
-    // Deduplicate filenames
     const counts = new Map();
     for (const f of out) {
       const n = counts.get(f.basename) || 0;
@@ -565,9 +718,7 @@
     return cssText.replace(URL_RE, (match, q, raw) => {
       const trimmed = (raw || "").trim();
       if (!trimmed) return match;
-      if (trimmed.startsWith("data:") || trimmed.startsWith("#") || trimmed.startsWith("blob:")) {
-        return match;
-      }
+      if (trimmed.startsWith("data:") || trimmed.startsWith("#") || trimmed.startsWith("blob:")) return match;
       let resolved;
       try { resolved = normalizeUrl(new URL(trimmed, cssBaseUrl).href); }
       catch { return match; }
@@ -577,7 +728,464 @@
     });
   }
 
-  /* ── Minimal STORE-only ZIP writer ──────────────────────── */
+  function renderFonts(fonts) {
+    fontsList.textContent = "";
+    for (const f of fonts) {
+      const li = document.createElement("li");
+      li.title = f.resolved;
+
+      const d = document.createElement("span");
+      d.className = "fdot";
+
+      const n = document.createElement("span");
+      n.className = "fname";
+      n.textContent = f.zipName;
+
+      const s = document.createElement("span");
+      s.className = "fsize";
+      s.textContent = "…";
+
+      li.append(d, n, s);
+      fontsList.appendChild(li);
+      f._el = { d, s };
+    }
+    fontsCard.hidden = false;
+    fontsMeta.textContent = fonts.length + " found";
+  }
+
+  function updateFontUi(f, state, size) {
+    if (!f._el) return;
+    f._el.d.className = "fdot" + (state ? " " + state : "");
+    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
+    else if (state === "err") f._el.s.textContent = "failed";
+  }
+
+  async function runCss() {
+    const rawUrl  = urlInput.value.trim();
+    const name    = sanitizeFilename(fnameInput.value);
+    const proxy   = useProxy.checked;
+    const bundle  = bundleFonts.checked;
+
+    let parsed;
+    try { parsed = new URL(rawUrl); }
+    catch {
+      setState("err", "Invalid URL — please enter a full http(s) address.");
+      urlInput.focus();
+      return;
+    }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      setState("err", "Only http:// and https:// URLs are supported.");
+      urlInput.focus();
+      return;
+    }
+
+    busyCss(true);
+    setState("loading", (proxy ? "Proxying · " : "Direct · ") + parsed.hostname + "…");
+    showProgress(true);
+    resetProgress();
+    fontsCard.hidden = true;
+    fontsList.textContent = "";
+    metaEl.textContent = "—";
+    previewEl.textContent = "// Fetching CSS…";
+
+    try {
+      const cssFetchUrl = buildFetchUrl(rawUrl, proxy);
+      const { blob: cssBlob, type: cssType } = await fetchWithProgress(cssFetchUrl, setProgress);
+      const cssText = await cssBlob.text();
+
+      bar.classList.add("done");
+      barFill.style.width = "100%";
+      const shortCssType = (cssType || "text/css").split(";")[0];
+      metaEl.textContent = shortCssType + " · " + fmtBytes(cssBlob.size) + (proxy ? " · proxied" : "");
+      sizeChip.textContent = fmtBytes(cssBlob.size);
+
+      if (!bundle) {
+        triggerDownload(cssBlob, name);
+        previewEl.textContent = buildPreview(cssText);
+        setState("ok", "Saved “" + name + "” (" + fmtBytes(cssBlob.size) + ")" + (proxy ? " via proxy" : ""));
+        return;
+      }
+
+      const fonts = extractFontUrls(cssText, rawUrl);
+
+      if (fonts.length === 0) {
+        triggerDownload(cssBlob, name);
+        previewEl.textContent = buildPreview(cssText);
+        setState("ok", "No fonts found — saved CSS only (" + fmtBytes(cssBlob.size) + ")");
+        return;
+      }
+
+      renderFonts(fonts);
+      setState("loading", fonts.length + " font" + (fonts.length === 1 ? "" : "s") + " to fetch…");
+
+      const byUrl = new Map();
+      for (const f of fonts) byUrl.set(f.resolved, f);
+
+      let okCount = 0, failCount = 0;
+
+      for (let i = 0; i < fonts.length; i++) {
+        const f = fonts[i];
+        updateFontUi(f, "loading");
+        setState("loading", "Font " + (i + 1) + "/" + fonts.length + " · " + f.zipName);
+        resetProgress();
+        bar.classList.add("indet");
+
+        try {
+          const fontFetchUrl = buildFetchUrl(f.resolved, proxy);
+          const { blob: fb } = await fetchWithProgress(fontFetchUrl, setProgress);
+          const data = new Uint8Array(await fb.arrayBuffer());
+          f.data = data;
+          okCount++;
+          bar.classList.remove("indet");
+          bar.classList.add("done");
+          barFill.style.width = "100%";
+          updateFontUi(f, "ok", data.length);
+        } catch (err) {
+          console.warn("Font fetch failed:", f.resolved, err);
+          f.error = err && err.message ? err.message : String(err);
+          failCount++;
+          bar.classList.remove("indet");
+          bar.classList.add("fail");
+          updateFontUi(f, "err");
+        }
+      }
+
+      const rewritten = rewriteCssUrls(cssText, rawUrl, byUrl);
+      const cssBytes = encoder.encode(rewritten);
+
+      const zipFiles = [{ name, data: cssBytes }];
+      for (const f of fonts) if (f.data) zipFiles.push({ name: f.zipPath, data: f.data });
+
+      const zipBlob = buildZip(zipFiles);
+      const zipName = name.replace(/\.[^.]*$/, "") + ".zip";
+      triggerDownload(zipBlob, zipName);
+
+      fontsMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
+      previewEl.textContent = buildPreview(rewritten);
+      metaEl.textContent =
+        shortCssType + " + " + okCount + " font" + (okCount === 1 ? "" : "s") +
+        " · " + fmtBytes(zipBlob.size);
+      sizeChip.textContent = fmtBytes(zipBlob.size);
+
+      const summary =
+        "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
+        (failCount ? " · " + failCount + " font" + (failCount === 1 ? "" : "s") + " failed" : "");
+      setState(failCount && !okCount ? "err" : "ok", summary);
+
+    } catch (err) {
+      console.error(err);
+      bar.classList.remove("indet", "done");
+      bar.classList.add("fail");
+      barFill.style.width = "100%";
+      pRight.textContent  = "";
+      sizeChip.textContent = "failed";
+
+      let msg = "Failed: " + (err && err.message ? err.message : String(err));
+      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
+        msg += " — likely CORS. Enable the API proxy and try again.";
+      } else if (proxy && /HTTP 5\d\d/.test(msg)) {
+        msg += " — check the /api/fetch deployment logs.";
+      }
+      previewEl.textContent = "// " + msg;
+      metaEl.textContent = "error";
+      setState("err", msg);
+    } finally {
+      busyCss(false);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     TAB 2 — JS DIRECTORY (Method 1: parse HTML listing)
+     ═══════════════════════════════════════════════════════════ */
+
+  let jsFiles = [];  // { url, basename, checked, data, _el }
+
+  function busyJs(on) {
+    jsListBtn.disabled   = on;
+    jsZipBtn.disabled    = on;
+    jsDirInput.disabled  = on;
+    jsUseProxy.disabled  = on;
+    jsSelectAll.disabled = on;
+
+    const existing = jsListBtn.querySelector(".spinner");
+    if (on) {
+      if (!existing) {
+        const s = document.createElement("span");
+        s.className = "spinner";
+        jsListBtn.insertBefore(s, jsListLabel);
+      }
+      jsListLabel.textContent = "Working…";
+    } else {
+      if (existing) existing.remove();
+      jsListLabel.textContent = "List JS files";
+    }
+  }
+
+  /**
+   * Method 1: fetch a directory URL, parse the returned HTML index page,
+   * collect every <a href> that resolves to a .js file.
+   */
+  async function listJsFiles(dirUrl, viaProxy) {
+    const fetchUrl = buildFetchUrl(dirUrl, viaProxy);
+    const res = await fetch(fetchUrl, {
+      method: "GET", mode: "cors", credentials: "omit",
+      cache: "no-cache", redirect: "follow"
+    });
+
+    if (!res.ok) {
+      let detail = "";
+      try {
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("application/json")) {
+          const j = await res.json();
+          detail = " — " + (j.error || j.detail || JSON.stringify(j));
+        }
+      } catch (_) {}
+      throw new Error("HTTP " + res.status + " " + res.statusText + detail);
+    }
+
+    const ct   = res.headers.get("content-type") || "";
+    const html = await res.text();
+
+    // Sanity check: does this even look like a directory listing?
+    if (!/html/i.test(ct) && !/<a\s/i.test(html)) {
+      throw new Error("Server did not return an HTML directory listing.");
+    }
+
+    const doc   = new DOMParser().parseFromString(html, "text/html");
+    const links = doc.querySelectorAll("a[href]");
+    const seen  = new Set();
+    const out   = [];
+
+    for (const a of links) {
+      const href = (a.getAttribute("href") || "").trim();
+      if (!href) continue;
+      if (href.startsWith("#") || href.startsWith("?")) continue;
+      // skip parent/current directory entries
+      if (href === "/" || href === "./" || href === "../") continue;
+
+      let resolved;
+      try { resolved = new URL(href, dirUrl); }
+      catch { continue; }
+
+      // Only .js files
+      if (!/\.js(\?|#|$)/i.test(resolved.pathname)) continue;
+
+      const clean = resolved.origin + resolved.pathname;   // drop ?query and #hash
+      if (seen.has(clean)) continue;
+      seen.add(clean);
+
+      let basename;
+      try {
+        basename = decodeURIComponent(resolved.pathname.split("/").pop() || "file.js");
+      } catch { basename = "file.js"; }
+
+      out.push({ url: clean, basename });
+    }
+
+    out.sort((a, b) => a.basename.localeCompare(b.basename));
+    return out;
+  }
+
+  function deriveZipBase(dirUrl) {
+    try {
+      const u = new URL(dirUrl);
+      const segs = u.pathname.split("/").filter(Boolean);
+      const last = segs.length ? segs[segs.length - 1] : u.hostname.replace(/\./g, "-");
+      return sanitizeFilename(last || "assets");
+    } catch { return "assets"; }
+  }
+
+  function renderJsFiles(files) {
+    jsFilesList.textContent = "";
+    jsFiles = files.map((f) => ({ ...f, checked: true }));
+
+    for (const f of jsFiles) {
+      const li = document.createElement("li");
+      li.title = f.url;
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = true;
+      cb.addEventListener("change", () => {
+        f.checked = cb.checked;
+        updateJsCount();
+      });
+
+      const d = document.createElement("span");
+      d.className = "fdot";
+
+      const n = document.createElement("span");
+      n.className = "fname";
+      n.textContent = f.basename;
+
+      const s = document.createElement("span");
+      s.className = "fsize";
+      s.textContent = "—";
+
+      li.append(cb, d, n, s);
+      jsFilesList.appendChild(li);
+      f._el = { cb, d, s };
+    }
+
+    jsFilesCard.hidden   = false;
+    jsActionsCard.hidden = false;
+    jsFilesMeta.textContent = files.length + " found";
+    jsSelectAll.checked  = true;
+    jsSelectAll.indeterminate = false;
+    updateJsCount();
+  }
+
+  function updateJsCount() {
+    const sel = jsFiles.filter((f) => f.checked).length;
+    jsCount.textContent = sel + " / " + jsFiles.length;
+    jsSelectAll.checked = sel > 0 && sel === jsFiles.length;
+    jsSelectAll.indeterminate = sel > 0 && sel < jsFiles.length;
+  }
+
+  function updateJsRow(f, state, size) {
+    if (!f._el) return;
+    f._el.d.className = "fdot" + (state ? " " + state : "");
+    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
+    else if (state === "err")     f._el.s.textContent = "failed";
+    else if (state === "loading") f._el.s.textContent = "…";
+  }
+
+  jsSelectAll.addEventListener("change", () => {
+    const on = jsSelectAll.checked;
+    for (const f of jsFiles) {
+      f.checked = on;
+      if (f._el) f._el.cb.checked = on;
+    }
+    updateJsCount();
+  });
+
+  async function runJsList() {
+    const rawUrl = jsDirInput.value.trim();
+    const proxy  = jsUseProxy.checked;
+
+    let parsed;
+    try { parsed = new URL(rawUrl); }
+    catch {
+      setState("err", "Invalid directory URL.");
+      jsDirInput.focus();
+      return;
+    }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      setState("err", "Only http:// and https:// URLs are supported.");
+      return;
+    }
+
+    busyJs(true);
+    setState("loading", "Listing " + parsed.hostname + "…");
+    showProgress(true);
+    resetProgress();
+    bar.classList.add("indet");
+    jsFilesCard.hidden   = true;
+    jsActionsCard.hidden = true;
+    jsFilesList.textContent = "";
+    jsFiles = [];
+
+    try {
+      const files = await listJsFiles(rawUrl, proxy);
+
+      bar.classList.remove("indet");
+      bar.classList.add("done");
+      barFill.style.width = "100%";
+      pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
+      pRight.textContent = "";
+
+      if (files.length === 0) {
+        setState("err", "No .js files found in the directory listing.");
+        jsFilesCard.hidden   = true;
+        jsActionsCard.hidden = true;
+        return;
+      }
+
+      renderJsFiles(files);
+      setState("ok", "Found " + files.length + " JS file" + (files.length === 1 ? "" : "s") + ".");
+      sizeChip.textContent = files.length + " files";
+
+    } catch (err) {
+      console.error(err);
+      bar.classList.remove("indet", "done");
+      bar.classList.add("fail");
+      barFill.style.width = "100%";
+      let msg = "Failed: " + (err && err.message ? err.message : String(err));
+      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
+        msg += " — likely CORS. Enable the API proxy and try again.";
+      }
+      setState("err", msg);
+      sizeChip.textContent = "failed";
+    } finally {
+      busyJs(false);
+    }
+  }
+
+  async function runJsZip() {
+    const proxy    = jsUseProxy.checked;
+    const selected = jsFiles.filter((f) => f.checked);
+
+    if (selected.length === 0) {
+      setState("err", "No files selected.");
+      return;
+    }
+
+    busyJs(true);
+    setState("loading", "Downloading " + selected.length + " file" + (selected.length === 1 ? "" : "s") + "…");
+    showProgress(true);
+
+    const zipFiles = [];
+    let okCount = 0, failCount = 0;
+
+    for (let i = 0; i < selected.length; i++) {
+      const f = selected[i];
+      updateJsRow(f, "loading");
+      setState("loading", "File " + (i + 1) + "/" + selected.length + " · " + f.basename);
+      resetProgress();
+      bar.classList.add("indet");
+
+      try {
+        const { blob } = await fetchWithProgress(buildFetchUrl(f.url, proxy), setProgress);
+        const data = new Uint8Array(await blob.arrayBuffer());
+        f.data = data;
+        okCount++;
+        bar.classList.remove("indet");
+        bar.classList.add("done");
+        barFill.style.width = "100%";
+        updateJsRow(f, "ok", data.length);
+        zipFiles.push({ name: f.basename, data });
+      } catch (err) {
+        console.warn("JS fetch failed:", f.url, err);
+        failCount++;
+        bar.classList.remove("indet", "done");
+        bar.classList.add("fail");
+        updateJsRow(f, "err");
+      }
+    }
+
+    if (zipFiles.length === 0) {
+      setState("err", "All downloads failed.");
+      busyJs(false);
+      return;
+    }
+
+    const zipBlob = buildZip(zipFiles);
+    const zipName = deriveZipBase(jsDirInput.value.trim()) + ".zip";
+    triggerDownload(zipBlob, zipName);
+
+    jsFilesMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
+    sizeChip.textContent = fmtBytes(zipBlob.size);
+
+    setState(
+      failCount && !okCount ? "err" : "ok",
+      "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
+      (failCount ? " · " + failCount + " failed" : "")
+    );
+    busyJs(false);
+  }
+
+  /* ── Minimal STORE-only ZIP writer (shared) ─────────────── */
   const CRC_TABLE = (() => {
     const t = new Uint32Array(256);
     for (let n = 0; n < 256; n++) {
@@ -673,198 +1281,22 @@
     return new Blob([...local, ...central, eocd], { type: "application/zip" });
   }
 
-  /* ── Fonts list UI ─────────────────────────────────────── */
-  function renderFonts(fonts) {
-    fontsList.textContent = "";
-    for (const f of fonts) {
-      const li = document.createElement("li");
-      li.title = f.resolved;
-
-      const d = document.createElement("span");
-      d.className = "fdot";
-      d.dataset.url = f.resolved;
-
-      const n = document.createElement("span");
-      n.className = "fname";
-      n.textContent = f.zipName;
-
-      const s = document.createElement("span");
-      s.className = "fsize";
-      s.textContent = "…";
-
-      li.append(d, n, s);
-      fontsList.appendChild(li);
-      f._el = { d, s };
-    }
-    fontsCard.hidden = false;
-    fontsMeta.textContent = fonts.length + " found";
-  }
-
-  function updateFontUi(f, state, size) {
-    if (!f._el) return;
-    f._el.d.className = "fdot" + (state ? " " + state : "");
-    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
-    else if (state === "err") f._el.s.textContent = "failed";
-  }
-
-  /* ── Main ──────────────────────────────────────────────── */
-  async function run() {
-    const rawUrl  = urlInput.value.trim();
-    const name    = sanitizeFilename(fnameInput.value);
-    const proxy   = useProxy.checked;
-    const bundle  = bundleFonts.checked;
-
-    let parsed;
-    try { parsed = new URL(rawUrl); }
-    catch {
-      setState("err", "Invalid URL — please enter a full http(s) address.");
-      urlInput.focus();
-      return;
-    }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      setState("err", "Only http:// and https:// URLs are supported.");
-      urlInput.focus();
-      return;
-    }
-
-    busy(true);
-    setState("loading", (proxy ? "Proxying · " : "Direct · ") + parsed.hostname + "…");
-    showProgress(true);
-    resetProgress();
-    fontsCard.hidden = true;
-    fontsList.textContent = "";
-    metaEl.textContent = "—";
-    previewEl.textContent = "// Fetching CSS…";
-
-    try {
-      /* 1. Fetch the CSS */
-      const cssFetchUrl = buildFetchUrl(rawUrl, proxy);
-      const { blob: cssBlob, type: cssType } = await fetchWithProgress(cssFetchUrl, setProgress);
-      const cssText = await cssBlob.text();
-
-      bar.classList.add("done");
-      barFill.style.width = "100%";
-      const shortCssType = (cssType || "text/css").split(";")[0];
-      metaEl.textContent = shortCssType + " · " + fmtBytes(cssBlob.size) + (proxy ? " · proxied" : "");
-      sizeChip.textContent = fmtBytes(cssBlob.size);
-
-      /* 2. No bundling → just download CSS */
-      if (!bundle) {
-        triggerDownload(cssBlob, name);
-        previewEl.textContent = buildPreview(cssText);
-        setState("ok", "Saved “" + name + "” (" + fmtBytes(cssBlob.size) + ")" + (proxy ? " via proxy" : ""));
-        return;
-      }
-
-      /* 3. Extract font URLs */
-      const fonts = extractFontUrls(cssText, rawUrl);
-
-      if (fonts.length === 0) {
-        triggerDownload(cssBlob, name);
-        previewEl.textContent = buildPreview(cssText);
-        setState("ok", "No fonts found — saved CSS only (" + fmtBytes(cssBlob.size) + ")");
-        return;
-      }
-
-      renderFonts(fonts);
-      setState("loading", fonts.length + " font" + (fonts.length === 1 ? "" : "s") + " to fetch…");
-
-      /* 4. Download each font (sequentially, with per-file progress) */
-      const byUrl = new Map();
-      for (const f of fonts) byUrl.set(f.resolved, f);
-
-      let okCount = 0;
-      let failCount = 0;
-      let bytesTotal = 0;
-
-      for (let i = 0; i < fonts.length; i++) {
-        const f = fonts[i];
-        updateFontUi(f, "loading");
-        setState("loading",
-          "Font " + (i + 1) + "/" + fonts.length + " · " + f.zipName);
-        resetProgress();
-        bar.classList.add("indet");
-
-        try {
-          const fontFetchUrl = buildFetchUrl(f.resolved, proxy);
-          const { blob: fb } = await fetchWithProgress(fontFetchUrl, setProgress);
-          const data = new Uint8Array(await fb.arrayBuffer());
-          f.data = data;
-          bytesTotal += data.length;
-          okCount++;
-          bar.classList.remove("indet");
-          bar.classList.add("done");
-          barFill.style.width = "100%";
-          updateFontUi(f, "ok", data.length);
-        } catch (err) {
-          console.warn("Font fetch failed:", f.resolved, err);
-          f.error = err && err.message ? err.message : String(err);
-          failCount++;
-          bar.classList.remove("indet");
-          bar.classList.add("fail");
-          updateFontUi(f, "err");
-        }
-      }
-
-      /* 5. Rewrite URLs for successfully-downloaded fonts */
-      const rewritten = rewriteCssUrls(cssText, rawUrl, byUrl);
-      const cssBytes = encoder.encode(rewritten);
-
-      /* 6. Build the ZIP */
-      const zipFiles = [{ name, data: cssBytes }];
-      for (const f of fonts) {
-        if (f.data) zipFiles.push({ name: f.zipPath, data: f.data });
-      }
-
-      const zipBlob = buildZip(zipFiles);
-      const zipName = name.replace(/\.[^.]*$/, "") + ".zip";
-
-      triggerDownload(zipBlob, zipName);
-
-      /* 7. Report */
-      fontsMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
-      previewEl.textContent = buildPreview(rewritten);
-      metaEl.textContent =
-        shortCssType + " + " + okCount + " font" + (okCount === 1 ? "" : "s") +
-        " · " + fmtBytes(zipBlob.size);
-
-      const summary =
-        "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
-        (failCount ? " · " + failCount + " font" + (failCount === 1 ? "" : "s") + " failed" : "");
-
-      setState(failCount && !okCount ? "err" : "ok", summary);
-
-    } catch (err) {
-      console.error(err);
-      bar.classList.remove("indet", "done");
-      bar.classList.add("fail");
-      barFill.style.width = "100%";
-      pRight.textContent  = "";
-      sizeChip.textContent = "failed";
-
-      let msg = "Failed: " + (err && err.message ? err.message : String(err));
-      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
-        msg += " — likely CORS. Enable the API proxy and try again.";
-      } else if (proxy && /HTTP 5\d\d/.test(msg)) {
-        msg += " — check the /api/fetch deployment logs.";
-      }
-      previewEl.textContent = "// " + msg;
-      metaEl.textContent = "error";
-      setState("err", msg);
-    } finally {
-      busy(false);
-    }
-  }
-
-  /* ── Events ────────────────────────────────────────────── */
-  goBtn.addEventListener("click", run);
+  /* ── Event wiring ──────────────────────────────────────── */
+  goBtn.addEventListener("click", runCss);
+  jsListBtn.addEventListener("click", runJsList);
+  jsZipBtn.addEventListener("click", runJsZip);
 
   [urlInput, fnameInput].forEach((el) => {
     el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); run(); }
+      if (e.key === "Enter") { e.preventDefault(); runCss(); }
     });
   });
 
+  jsDirInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); runJsList(); }
+  });
+
+  /* Prevent double-tap zoom on iOS (extra safety) */
   let lastTouch = 0;
   document.addEventListener("touchend", (e) => {
     const now = Date.now();
