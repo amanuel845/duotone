@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch & Download duotone.min.css</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 40px 36px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 28px;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .subtitle code {
+            background: #eef2f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .status {
+            margin-top: 24px;
+            font-size: 0.9rem;
+            min-height: 24px;
+            line-height: 1.5;
+            transition: color 0.3s;
+        }
+
+        .status.info {
+            color: #2563eb;
+        }
+
+        .status.success {
+            color: #16a34a;
+        }
+
+        .status.error {
+            color: #dc2626;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .note {
+            margin-top: 20px;
+            font-size: 0.78rem;
+            color: #9ca3af;
+            line-height: 1.5;
+            text-align: left;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>⬇ Download Font Awesome Duotone CSS</h1>
+        <p class="subtitle">
+            Fetches <code>duotone.min.css</code> from the University of Illinois Library and saves it to your device.
+        </p>
+
+        <button class="btn" id="downloadBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+            </svg>
+            <span id="btnText">Fetch &amp; Download</span>
+        </button>
+
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+
+        <div class="note">
+            <strong>Note:</strong> This page makes a cross-origin request. If the server does not send the
+            <code>Access-Control-Allow-Origin</code> header, the browser will block the download.
+            In that case, you can still download the file directly by right-clicking the link below and choosing
+            “Save Link As…”.
+            <br><br>
+            <a href="https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css"
+               target="_blank" rel="noopener"
+               style="color:#2563eb;word-break:break-all;">
+                https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css
+            </a>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const TARGET_URL = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
+            const OUTPUT_FILENAME = "duotone.min.css";
+
+            const btn = document.getElementById("downloadBtn");
+            const btnText = document.getElementById("btnText");
+            const statusEl = document.getElementById("status");
+
+            /**
+             * Update the status message with an optional CSS class.
+             */
+            function setStatus(message, type) {
+                statusEl.textContent = message;
+                statusEl.className = "status" + (type ? " " + type : "");
+            }
+
+            /**
+             * Reset the button to its normal state.
+             */
+            function resetButton() {
+                btn.disabled = false;
+                btnText.textContent = "Fetch & Download";
+                // Remove any spinner
+                const spinner = btn.querySelector(".spinner");
+                if (spinner) spinner.remove();
+            }
+
+            /**
+             * Fetch the CSS file and trigger a browser download.
+             */
+            async function fetchAndDownload() {
+                // ---- UI: loading state ----
+                btn.disabled = true;
+                setStatus("Fetching file…", "info");
+
+                // Insert spinner next to the button text
+                const spinner = document.createElement("span");
+                spinner.className = "spinner";
+                btn.insertBefore(spinner, btnText);
+                btnText.textContent = "Downloading…";
+
+                try {
+                    // ---- Fetch ----
+                    const response = await fetch(TARGET_URL, {
+                        method: "GET",
+                        mode: "cors",               // request CORS
+                        credentials: "omit",        // no cookies needed
+                        cache: "no-cache"           // always fresh
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Server responded with " +
+                            response.status +
+                            " " +
+                            response.statusText
+                        );
+                    }
+
+                    // ---- Convert to Blob ----
+                    const blob = await response.blob();
+
+                    // Optional: verify it looks like CSS (not strictly required)
+                    // if (!blob.type.includes("css") && !blob.type.includes("text")) {
+                    //     console.warn("Unexpected MIME type:", blob.type);
+                    // }
+
+                    // ---- Create a temporary object URL ----
+                    const objectUrl = URL.createObjectURL(blob);
+
+                    // ---- Build an invisible <a> and click it ----
+                    const a = document.createElement("a");
+                    a.href = objectUrl;
+                    a.download = OUTPUT_FILENAME;   // the name the browser will use
+                    a.style.display = "none";
+
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // ---- Clean up ----
+                    // Remove the link after a short delay (needed in some browsers)
+                    setTimeout(function () {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(objectUrl);
+                    }, 200);
+
+                    // ---- Success feedback ----
+                    setStatus(
+                        "✅ Download started! Check your downloads folder for \"" +
+                        OUTPUT_FILENAME +
+                        "\".",
+                        "success"
+                    );
+                } catch (err) {
+                    // ---- Error feedback ----
+                    console.error("Download failed:", err);
+
+                    let userMessage = "❌ Download failed: " + err.message;
+
+                    // Give a more helpful hint for common CORS errors
+                    if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
+                        userMessage +=
+                            " — This is likely a CORS restriction. " +
+                            "Use the direct link at the bottom of the page instead.";
+                    }
+
+                    setStatus(userMessage, "error");
+                } finally {
+                    resetButton();
+                }
+            }
+
+            // ---- Wire up the button ----
+            btn.addEventListener("click", fetchAndDownload);
+        })();
+    </script>
+
+</body>
+</html>
