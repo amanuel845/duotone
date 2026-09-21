@@ -21,198 +21,109 @@
   }
 
   *{margin:0;padding:0;box-sizing:border-box;}
-
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 
   body{
-    height:100vh;
-    height:100dvh;
+    height:100vh;height:100dvh;
     overflow:hidden;
-    display:flex;
-    flex-direction:column;
+    display:flex;flex-direction:column;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:14px;
-    line-height:1.4;
-    color:var(--text);
-    background:var(--bg);
+    font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);
     -webkit-tap-highlight-color:transparent;
   }
 
   /* ── HEADER ─────────────────────────────── */
   header{
-    flex:0 0 auto;
-    display:flex;
-    align-items:center;
-    gap:8px;
+    flex:0 0 auto;display:flex;align-items:center;gap:8px;
     padding:9px 12px;
     padding-top:calc(9px + env(safe-area-inset-top));
-    background:var(--surface);
-    border-bottom:1px solid var(--line);
+    background:var(--surface);border-bottom:1px solid var(--line);
   }
   .logo{
-    flex:0 0 auto;
-    width:22px;height:22px;
-    border-radius:6px;
-    background:var(--accent);
-    color:#fff;
-    display:grid;place-items:center;
+    flex:0 0 auto;width:22px;height:22px;border-radius:6px;
+    background:var(--accent);color:#fff;display:grid;place-items:center;
     font-size:.72rem;font-weight:700;line-height:1;
   }
-  header h1{
-    font-size:.9rem;
-    font-weight:650;
-    letter-spacing:-.01em;
-    white-space:nowrap;
-  }
+  header h1{font-size:.9rem;font-weight:650;letter-spacing:-.01em;white-space:nowrap;}
   .chip{
-    margin-left:auto;
-    font-size:.66rem;
-    color:var(--muted);
-    background:#f8fafc;
-    border:1px solid var(--line);
-    border-radius:999px;
-    padding:3px 8px;
-    white-space:nowrap;
-    font-variant-numeric:tabular-nums;
+    margin-left:auto;font-size:.66rem;color:var(--muted);
+    background:#f8fafc;border:1px solid var(--line);border-radius:999px;
+    padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;
   }
 
   /* ── MAIN ───────────────────────────────── */
   main{
-    flex:1 1 auto;
-    min-height:0;
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+    flex:1 1 auto;min-height:0;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    padding:10px;display:flex;flex-direction:column;gap:10px;
   }
 
   .card{
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:10px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:10px;
   }
 
   label{
-    display:block;
-    font-size:.66rem;
-    font-weight:700;
-    letter-spacing:.05em;
-    text-transform:uppercase;
-    color:var(--muted);
-    margin-bottom:4px;
+    display:block;font-size:.66rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:4px;
   }
 
-  input[type="url"],
-  input[type="text"]{
-    width:100%;
-    font:inherit;
-    font-size:16px;
-    padding:9px 10px;
-    color:var(--text);
-    background:#f8fafc;
-    border:1px solid var(--line);
-    border-radius:8px;
-    outline:none;
+  input[type="url"], input[type="text"]{
+    width:100%;font:inherit;font-size:16px;padding:9px 10px;
+    color:var(--text);background:#f8fafc;border:1px solid var(--line);
+    border-radius:8px;outline:none;
     transition:border-color .15s, box-shadow .15s, background .15s;
   }
-  input[type="url"]:focus,
-  input[type="text"]:focus{
-    background:#fff;
-    border-color:var(--accent);
+  input[type="url"]:focus, input[type="text"]:focus{
+    background:#fff;border-color:var(--accent);
     box-shadow:0 0 0 3px rgba(37,99,235,.13);
   }
   input:disabled{opacity:.6;}
-
   .field + .field{margin-top:8px;}
 
-  /* Proxy toggle */
-  .proxy-row{
-    margin-top:10px;
-    display:flex;
-    align-items:center;
-    gap:9px;
-    padding:8px 10px;
-    background:#f8fafc;
-    border:1px solid var(--line);
-    border-radius:8px;
-    cursor:pointer;
-    user-select:none;
+  /* Toggles */
+  .toggle-row{
+    margin-top:10px;display:flex;align-items:center;gap:9px;
+    padding:8px 10px;background:#f8fafc;border:1px solid var(--line);
+    border-radius:8px;cursor:pointer;user-select:none;
   }
-  .proxy-row input{position:absolute;opacity:0;pointer-events:none;}
+  .toggle-row input{position:absolute;opacity:0;pointer-events:none;}
   .switch{
-    flex:0 0 auto;
-    width:34px;height:20px;
-    border-radius:999px;
-    background:#cbd5e1;
-    position:relative;
-    transition:background .18s;
+    flex:0 0 auto;width:34px;height:20px;border-radius:999px;
+    background:#cbd5e1;position:relative;transition:background .18s;
   }
   .switch::after{
-    content:"";
-    position:absolute;
-    top:2px;left:2px;
-    width:16px;height:16px;
-    border-radius:50%;
-    background:#fff;
-    box-shadow:0 1px 3px rgba(0,0,0,.2);
-    transition:transform .18s;
+    content:"";position:absolute;top:2px;left:2px;
+    width:16px;height:16px;border-radius:50%;background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s;
   }
-  .proxy-row input:checked ~ .switch{background:var(--accent);}
-  .proxy-row input:checked ~ .switch::after{transform:translateX(14px);}
-  .proxy-row input:disabled ~ .switch{opacity:.55;}
-  .proxy-text{
-    flex:1 1 auto;
-    min-width:0;
-    font-size:.78rem;
-    color:var(--text);
-    line-height:1.25;
+  .toggle-row input:checked ~ .switch{background:var(--accent);}
+  .toggle-row input:checked ~ .switch::after{transform:translateX(14px);}
+  .toggle-row input:disabled ~ .switch{opacity:.55;}
+  .toggle-text{
+    flex:1 1 auto;min-width:0;font-size:.78rem;color:var(--text);line-height:1.25;
   }
-  .proxy-text code{
+  .toggle-text code{
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-size:.72rem;
-    background:#eef2f7;
-    padding:1px 5px;
-    border-radius:4px;
-    color:#334155;
+    font-size:.72rem;background:#eef2f7;padding:1px 5px;
+    border-radius:4px;color:#334155;
   }
-  .proxy-text small{
-    display:block;
-    font-size:.66rem;
-    color:var(--muted);
-    margin-top:1px;
+  .toggle-text small{
+    display:block;font-size:.66rem;color:var(--muted);margin-top:1px;
   }
 
   button{
-    width:100%;
-    margin-top:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    font:inherit;
-    font-size:.9rem;
-    font-weight:650;
-    padding:11px 14px;
-    color:#fff;
-    background:var(--accent);
-    border:none;
-    border-radius:9px;
-    cursor:pointer;
-    transition:background .15s, transform .08s;
+    width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;
+    gap:8px;font:inherit;font-size:.9rem;font-weight:650;padding:11px 14px;
+    color:#fff;background:var(--accent);border:none;border-radius:9px;
+    cursor:pointer;transition:background .15s, transform .08s;
   }
   button:active:not(:disabled){transform:scale(.985);}
   button:disabled{opacity:.65;cursor:not-allowed;}
 
   .spinner{
-    flex:0 0 auto;
-    width:14px;height:14px;
-    border-radius:50%;
-    border:2px solid rgba(255,255,255,.35);
-    border-top-color:#fff;
+    flex:0 0 auto;width:14px;height:14px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
     animation:spin .6s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -220,94 +131,67 @@
   /* ── PROGRESS ───────────────────────────── */
   .progress-card{padding:9px 10px 11px;}
   .progress-head{
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-    font-size:.68rem;
-    color:var(--muted);
-    margin-bottom:6px;
-    font-variant-numeric:tabular-nums;
+    display:flex;justify-content:space-between;gap:8px;font-size:.68rem;
+    color:var(--muted);margin-bottom:6px;font-variant-numeric:tabular-nums;
   }
-  .progress-head span{
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .bar{
-    position:relative;
-    height:6px;
-    border-radius:999px;
-    background:#e2e8f0;
-    overflow:hidden;
-  }
+  .progress-head span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bar{position:relative;height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;}
   .bar > i{
-    display:block;
-    height:100%;
-    width:0;
-    border-radius:999px;
+    display:block;height:100%;width:0;border-radius:999px;
     background:linear-gradient(90deg,#3b82f6,#2563eb);
     transition:width .15s linear;
   }
-  .bar.indet > i{
-    width:35% !important;
-    transition:none;
-    animation:slide 1.15s ease-in-out infinite;
-  }
-  @keyframes slide{
-    0%  {transform:translateX(-110%);}
-    100%{transform:translateX(320%);}
-  }
+  .bar.indet > i{width:35% !important;transition:none;animation:slide 1.15s ease-in-out infinite;}
+  @keyframes slide{0%{transform:translateX(-110%);}100%{transform:translateX(320%);}}
   .bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a);}
   .bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important;}
 
-  /* ── PREVIEW ────────────────────────────── */
-  .preview-card{
-    padding:0;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    min-height:0;
+  /* ── FONTS LIST ─────────────────────────── */
+  .fonts-card{padding:0;overflow:hidden;}
+  .fonts-list{
+    list-style:none;max-height:34vh;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
+  .fonts-list li{
+    display:flex;align-items:center;gap:8px;padding:8px 10px;
+    border-bottom:1px solid var(--line);font-size:.75rem;
+  }
+  .fonts-list li:last-child{border-bottom:none;}
+  .fdot{
+    flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#cbd5e1;
+  }
+  .fdot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
+  .fdot.ok{background:var(--ok);}
+  .fdot.err{background:var(--err);}
+  .fname{
+    flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.72rem;color:#334155;
+  }
+  .fsize{
+    flex:0 0 auto;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.68rem;
+  }
+
+  /* ── PREVIEW ────────────────────────────── */
+  .preview-card{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
   .card-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-    padding:8px 10px;
-    border-bottom:1px solid var(--line);
-    font-size:.66rem;
-    font-weight:700;
-    letter-spacing:.05em;
-    text-transform:uppercase;
-    color:var(--muted);
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:8px 10px;border-bottom:1px solid var(--line);
+    font-size:.66rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted);
   }
   .card-head .meta{
-    font-weight:500;
-    font-size:.66rem;
-    letter-spacing:0;
-    text-transform:none;
-    color:var(--muted);
-    font-variant-numeric:tabular-nums;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    max-width:60%;
-    text-align:right;
+    font-weight:500;font-size:.66rem;letter-spacing:0;text-transform:none;
+    color:var(--muted);font-variant-numeric:tabular-nums;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    max-width:60%;text-align:right;
   }
   pre{
-    margin:0;
-    padding:10px;
-    max-height:40vh;
-    min-height:120px;
-    overflow:auto;
+    margin:0;padding:10px;max-height:32vh;min-height:100px;overflow:auto;
     -webkit-overflow-scrolling:touch;
-    background:var(--code-bg);
-    color:var(--code-fg);
+    background:var(--code-bg);color:var(--code-fg);
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    font-size:11px;
-    line-height:1.55;
-    white-space:pre;
-    tab-size:2;
+    font-size:11px;line-height:1.55;white-space:pre;tab-size:2;
   }
   pre::-webkit-scrollbar{width:7px;height:7px;}
   pre::-webkit-scrollbar-thumb{background:#334155;border-radius:999px;}
@@ -315,23 +199,14 @@
 
   /* ── FOOTER ─────────────────────────────── */
   footer{
-    flex:0 0 auto;
-    display:flex;
-    align-items:flex-start;
-    gap:7px;
+    flex:0 0 auto;display:flex;align-items:flex-start;gap:7px;
     padding:8px 12px;
     padding-bottom:calc(8px + env(safe-area-inset-bottom));
-    background:var(--surface);
-    border-top:1px solid var(--line);
-    font-size:.72rem;
-    line-height:1.35;
-    color:var(--muted);
+    background:var(--surface);border-top:1px solid var(--line);
+    font-size:.72rem;line-height:1.35;color:var(--muted);
   }
   .dot{
-    flex:0 0 auto;
-    width:7px;height:7px;
-    margin-top:4px;
-    border-radius:50%;
+    flex:0 0 auto;width:7px;height:7px;margin-top:4px;border-radius:50%;
     background:#94a3b8;
   }
   .dot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
@@ -340,26 +215,20 @@
   @keyframes pulse{50%{opacity:.25;}}
 
   #status{
-    flex:1 1 auto;
-    min-width:0;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-    word-break:break-word;
+    flex:1 1 auto;min-width:0;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;word-break:break-word;
   }
 </style>
 </head>
 <body>
 
-  <!-- ══════════ HEADER ══════════ -->
   <header>
     <span class="logo" aria-hidden="true">⬇</span>
     <h1>CSS Fetcher</h1>
     <span class="chip" id="sizeChip">idle</span>
   </header>
 
-  <!-- ══════════ MAIN ══════════ -->
   <main>
 
     <!-- Form -->
@@ -382,13 +251,21 @@
                placeholder="duotone.min.css">
       </div>
 
-      <!-- Proxy toggle -->
-      <label class="proxy-row" for="useProxy">
+      <label class="toggle-row" for="useProxy">
         <input type="checkbox" id="useProxy" checked>
         <span class="switch" aria-hidden="true"></span>
-        <span class="proxy-text">
+        <span class="toggle-text">
           Use API proxy <code>api/fetch.js</code>
-          <small>Bypasses CORS — routes through your Vercel function.</small>
+          <small>Bypasses CORS for the CSS <em>and</em> its fonts.</small>
+        </span>
+      </label>
+
+      <label class="toggle-row" for="bundleFonts">
+        <input type="checkbox" id="bundleFonts" checked>
+        <span class="switch" aria-hidden="true"></span>
+        <span class="toggle-text">
+          Bundle fonts into a ZIP
+          <small>Extracts <code>url(...)</code> from <code>@font-face</code> and packages everything.</small>
         </span>
       </label>
 
@@ -408,6 +285,15 @@
       </div>
     </section>
 
+    <!-- Fonts list -->
+    <section class="card fonts-card" id="fontsCard" hidden>
+      <div class="card-head">
+        <span>Fonts</span>
+        <span class="meta" id="fontsMeta">—</span>
+      </div>
+      <ul class="fonts-list" id="fontsList"></ul>
+    </section>
+
     <!-- Preview -->
     <section class="card preview-card">
       <div class="card-head">
@@ -419,7 +305,6 @@
 
   </main>
 
-  <!-- ══════════ FOOTER ══════════ -->
   <footer>
     <span class="dot" id="dot" aria-hidden="true"></span>
     <span id="status" role="status" aria-live="polite">Ready.</span>
@@ -440,6 +325,7 @@
   const urlInput     = $("url");
   const fnameInput   = $("fname");
   const useProxy     = $("useProxy");
+  const bundleFonts  = $("bundleFonts");
   const goBtn        = $("go");
   const btnLabel     = $("btnLabel");
   const progressCard = $("progressCard");
@@ -447,6 +333,9 @@
   const barFill      = $("barFill");
   const pLeft        = $("pLeft");
   const pRight       = $("pRight");
+  const fontsCard    = $("fontsCard");
+  const fontsList    = $("fontsList");
+  const fontsMeta    = $("fontsMeta");
   const previewEl    = $("preview");
   const metaEl       = $("meta");
   const sizeChip     = $("sizeChip");
@@ -459,20 +348,19 @@
 
   let fnameTouched = false;
   fnameInput.addEventListener("input", () => { fnameTouched = true; });
-
   urlInput.addEventListener("input", () => {
     if (!fnameTouched) fnameInput.value = deriveName(urlInput.value);
   });
 
-  /* ── Helpers ────────────────────────────────────────────── */
+  /* ── Utilities ──────────────────────────────────────────── */
+  const encoder = new TextEncoder();
+
   function deriveName(rawUrl) {
     try {
       const u = new URL(rawUrl.trim());
       const seg = u.pathname.split("/").filter(Boolean).pop();
       return seg ? decodeURIComponent(seg) : "download.css";
-    } catch (_) {
-      return "download.css";
-    }
+    } catch { return "download.css"; }
   }
 
   function fmtBytes(n) {
@@ -489,6 +377,12 @@
       .trim() || "download.css";
   }
 
+  function normalizeUrl(href) {
+    const u = new URL(href);
+    u.hash = "";
+    return u.href;
+  }
+
   function setState(state, message) {
     dot.className = "dot" +
       (state === "loading" ? " loading" :
@@ -498,10 +392,11 @@
   }
 
   function busy(on) {
-    goBtn.disabled       = on;
-    urlInput.disabled    = on;
-    fnameInput.disabled  = on;
-    useProxy.disabled    = on;
+    goBtn.disabled      = on;
+    urlInput.disabled   = on;
+    fnameInput.disabled = on;
+    useProxy.disabled   = on;
+    bundleFonts.disabled = on;
 
     const existing = goBtn.querySelector(".spinner");
     if (on) {
@@ -529,8 +424,15 @@
     } else {
       bar.classList.add("indet");
       pRight.textContent = "";
-      pLeft.textContent  = fmtBytes(received);
+      pLeft.textContent  = received ? fmtBytes(received) : "0 B";
     }
+  }
+
+  function resetProgress() {
+    bar.classList.remove("done", "fail", "indet");
+    barFill.style.width = "0%";
+    pLeft.textContent  = "0 B";
+    pRight.textContent = "";
   }
 
   function buildPreview(text) {
@@ -555,16 +457,9 @@
     a.style.display = "none";
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => {
-      a.remove();
-      URL.revokeObjectURL(objectUrl);
-    }, 1200);
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(objectUrl); }, 1500);
   }
 
-  /**
-   * Build the URL we actually fetch. When proxy is on, we call our own
-   * /api/fetch endpoint with the target URL passed as a query string.
-   */
   function buildFetchUrl(targetUrl, viaProxy) {
     if (!viaProxy) return targetUrl;
     return PROXY_PATH + "?url=" + encodeURIComponent(targetUrl);
@@ -573,15 +468,11 @@
   /* ── Streaming fetch with progress ──────────────────────── */
   async function fetchWithProgress(fetchUrl, onProgress) {
     const response = await fetch(fetchUrl, {
-      method: "GET",
-      mode: "cors",
-      credentials: "omit",
-      cache: "no-cache",
-      redirect: "follow"
+      method: "GET", mode: "cors", credentials: "omit",
+      cache: "no-cache", redirect: "follow"
     });
 
     if (!response.ok) {
-      // Try to surface a JSON error message from the proxy
       let detail = "";
       try {
         const ct = response.headers.get("content-type") || "";
@@ -599,7 +490,7 @@
     if (!response.body || typeof response.body.getReader !== "function") {
       const blob = await response.blob();
       onProgress(blob.size, blob.size);
-      return { blob, type: contentType, total: blob.size };
+      return { blob, type: contentType };
     }
 
     const reader = response.body.getReader();
@@ -615,20 +506,217 @@
       onProgress(received, declared);
     }
 
-    const blob = new Blob(chunks, { type: contentType || "text/css" });
-    return { blob, type: contentType, total: received };
+    const blob = new Blob(chunks, { type: contentType || "application/octet-stream" });
+    return { blob, type: contentType };
   }
 
-  /* ── Main action ────────────────────────────────────────── */
+  /* ── CSS @font-face / url() extraction ──────────────────── */
+  const URL_RE = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/gi;
+  const FONT_EXT_RE = /\.(woff2?|ttf|otf|eot|svg)([?#].*)?$/i;
+
+  function extractFontUrls(cssText, cssBaseUrl) {
+    const out = [];
+    const seen = new Set();
+    let m;
+
+    URL_RE.lastIndex = 0;
+    while ((m = URL_RE.exec(cssText)) !== null) {
+      const raw = (m[2] || "").trim();
+      if (!raw) continue;
+      if (raw.startsWith("data:") || raw.startsWith("#") || raw.startsWith("blob:")) continue;
+      if (!FONT_EXT_RE.test(raw)) continue;
+
+      let resolved;
+      try { resolved = normalizeUrl(new URL(raw, cssBaseUrl).href); }
+      catch { continue; }
+
+      if (seen.has(resolved)) continue;
+      seen.add(resolved);
+
+      let basename;
+      try {
+        const u = new URL(resolved);
+        basename = decodeURIComponent(u.pathname.split("/").pop() || "font.bin");
+      } catch { basename = "font.bin"; }
+
+      out.push({ raw, resolved, basename });
+    }
+
+    // Deduplicate filenames
+    const counts = new Map();
+    for (const f of out) {
+      const n = counts.get(f.basename) || 0;
+      counts.set(f.basename, n + 1);
+      if (n > 0) {
+        const d = f.basename.lastIndexOf(".");
+        f.zipName = d > 0
+          ? f.basename.slice(0, d) + "_" + n + f.basename.slice(d)
+          : f.basename + "_" + n;
+      } else {
+        f.zipName = f.basename;
+      }
+      f.zipPath = "webfonts/" + f.zipName;
+    }
+    return out;
+  }
+
+  function rewriteCssUrls(cssText, cssBaseUrl, fontByUrl) {
+    URL_RE.lastIndex = 0;
+    return cssText.replace(URL_RE, (match, q, raw) => {
+      const trimmed = (raw || "").trim();
+      if (!trimmed) return match;
+      if (trimmed.startsWith("data:") || trimmed.startsWith("#") || trimmed.startsWith("blob:")) {
+        return match;
+      }
+      let resolved;
+      try { resolved = normalizeUrl(new URL(trimmed, cssBaseUrl).href); }
+      catch { return match; }
+      const f = fontByUrl.get(resolved);
+      if (!f || !f.data) return match;
+      return 'url("' + f.zipPath + '")';
+    });
+  }
+
+  /* ── Minimal STORE-only ZIP writer ──────────────────────── */
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(bytes) {
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
+      c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    }
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function dosDateTime(d) {
+    const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    return { date: date & 0xFFFF, time: time & 0xFFFF };
+  }
+
+  function buildZip(files) {
+    const now = dosDateTime(new Date());
+    const local = [];
+    const central = [];
+    let offset = 0;
+
+    for (const f of files) {
+      const nameBytes = encoder.encode(f.name);
+      const data = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+      const crc = crc32(data);
+      const size = data.length;
+
+      const lh = new Uint8Array(30 + nameBytes.length);
+      const lv = new DataView(lh.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0, true);
+      lv.setUint16(8, 0, true);
+      lv.setUint16(10, now.time, true);
+      lv.setUint16(12, now.date, true);
+      lv.setUint32(14, crc, true);
+      lv.setUint32(18, size, true);
+      lv.setUint32(22, size, true);
+      lv.setUint16(26, nameBytes.length, true);
+      lv.setUint16(28, 0, true);
+      lh.set(nameBytes, 30);
+
+      local.push(lh, data);
+
+      const cd = new Uint8Array(46 + nameBytes.length);
+      const cv = new DataView(cd.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, now.time, true);
+      cv.setUint16(14, now.date, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint16(30, 0, true);
+      cv.setUint16(32, 0, true);
+      cv.setUint16(34, 0, true);
+      cv.setUint16(36, 0, true);
+      cv.setUint32(38, 0, true);
+      cv.setUint32(42, offset, true);
+      cd.set(nameBytes, 46);
+
+      central.push(cd);
+      offset += lh.length + data.length;
+    }
+
+    const cdSize = central.reduce((s, c) => s + c.length, 0);
+    const cdOffset = offset;
+
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true);
+    ev.setUint16(6, 0, true);
+    ev.setUint16(8, central.length, true);
+    ev.setUint16(10, central.length, true);
+    ev.setUint32(12, cdSize, true);
+    ev.setUint32(16, cdOffset, true);
+    ev.setUint16(20, 0, true);
+
+    return new Blob([...local, ...central, eocd], { type: "application/zip" });
+  }
+
+  /* ── Fonts list UI ─────────────────────────────────────── */
+  function renderFonts(fonts) {
+    fontsList.textContent = "";
+    for (const f of fonts) {
+      const li = document.createElement("li");
+      li.title = f.resolved;
+
+      const d = document.createElement("span");
+      d.className = "fdot";
+      d.dataset.url = f.resolved;
+
+      const n = document.createElement("span");
+      n.className = "fname";
+      n.textContent = f.zipName;
+
+      const s = document.createElement("span");
+      s.className = "fsize";
+      s.textContent = "…";
+
+      li.append(d, n, s);
+      fontsList.appendChild(li);
+      f._el = { d, s };
+    }
+    fontsCard.hidden = false;
+    fontsMeta.textContent = fonts.length + " found";
+  }
+
+  function updateFontUi(f, state, size) {
+    if (!f._el) return;
+    f._el.d.className = "fdot" + (state ? " " + state : "");
+    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
+    else if (state === "err") f._el.s.textContent = "failed";
+  }
+
+  /* ── Main ──────────────────────────────────────────────── */
   async function run() {
-    const rawUrl = urlInput.value.trim();
-    const name   = sanitizeFilename(fnameInput.value);
-    const proxy  = useProxy.checked;
+    const rawUrl  = urlInput.value.trim();
+    const name    = sanitizeFilename(fnameInput.value);
+    const proxy   = useProxy.checked;
+    const bundle  = bundleFonts.checked;
 
     let parsed;
-    try {
-      parsed = new URL(rawUrl);
-    } catch (_) {
+    try { parsed = new URL(rawUrl); }
+    catch {
       setState("err", "Invalid URL — please enter a full http(s) address.");
       urlInput.focus();
       return;
@@ -639,47 +727,115 @@
       return;
     }
 
-    const fetchUrl = buildFetchUrl(rawUrl, proxy);
-
     busy(true);
-    setState(
-      "loading",
-      (proxy ? "Proxying via /api/fetch · " : "Direct · ") + parsed.hostname + "…"
-    );
+    setState("loading", (proxy ? "Proxying · " : "Direct · ") + parsed.hostname + "…");
     showProgress(true);
-    bar.classList.remove("done", "fail");
-    barFill.style.width = "0%";
-    setProgress(0, 0);
+    resetProgress();
+    fontsCard.hidden = true;
+    fontsList.textContent = "";
     metaEl.textContent = "—";
-    previewEl.textContent = "// Fetching" + (proxy ? " via proxy" : "") + "…";
+    previewEl.textContent = "// Fetching CSS…";
 
     try {
-      const { blob, type } = await fetchWithProgress(fetchUrl, setProgress);
+      /* 1. Fetch the CSS */
+      const cssFetchUrl = buildFetchUrl(rawUrl, proxy);
+      const { blob: cssBlob, type: cssType } = await fetchWithProgress(cssFetchUrl, setProgress);
+      const cssText = await cssBlob.text();
 
-      bar.classList.remove("indet");
       bar.classList.add("done");
       barFill.style.width = "100%";
-      pLeft.textContent    = fmtBytes(blob.size);
-      pRight.textContent   = "100%";
-      sizeChip.textContent = fmtBytes(blob.size);
+      const shortCssType = (cssType || "text/css").split(";")[0];
+      metaEl.textContent = shortCssType + " · " + fmtBytes(cssBlob.size) + (proxy ? " · proxied" : "");
+      sizeChip.textContent = fmtBytes(cssBlob.size);
 
-      const shortType = (type || "unknown/unknown").split(";")[0];
-      metaEl.textContent = shortType + " · " + fmtBytes(blob.size) + (proxy ? " · proxied" : "");
+      /* 2. No bundling → just download CSS */
+      if (!bundle) {
+        triggerDownload(cssBlob, name);
+        previewEl.textContent = buildPreview(cssText);
+        setState("ok", "Saved “" + name + "” (" + fmtBytes(cssBlob.size) + ")" + (proxy ? " via proxy" : ""));
+        return;
+      }
 
-      let text = "";
-      try { text = await blob.text(); }
-      catch (_) { text = "// Unable to decode file as text."; }
-      previewEl.textContent = buildPreview(text);
+      /* 3. Extract font URLs */
+      const fonts = extractFontUrls(cssText, rawUrl);
 
-      triggerDownload(blob, name);
+      if (fonts.length === 0) {
+        triggerDownload(cssBlob, name);
+        previewEl.textContent = buildPreview(cssText);
+        setState("ok", "No fonts found — saved CSS only (" + fmtBytes(cssBlob.size) + ")");
+        return;
+      }
 
-      setState("ok",
-        "Saved “" + name + "” (" + fmtBytes(blob.size) + ")" +
-        (proxy ? " via proxy" : "")
-      );
+      renderFonts(fonts);
+      setState("loading", fonts.length + " font" + (fonts.length === 1 ? "" : "s") + " to fetch…");
+
+      /* 4. Download each font (sequentially, with per-file progress) */
+      const byUrl = new Map();
+      for (const f of fonts) byUrl.set(f.resolved, f);
+
+      let okCount = 0;
+      let failCount = 0;
+      let bytesTotal = 0;
+
+      for (let i = 0; i < fonts.length; i++) {
+        const f = fonts[i];
+        updateFontUi(f, "loading");
+        setState("loading",
+          "Font " + (i + 1) + "/" + fonts.length + " · " + f.zipName);
+        resetProgress();
+        bar.classList.add("indet");
+
+        try {
+          const fontFetchUrl = buildFetchUrl(f.resolved, proxy);
+          const { blob: fb } = await fetchWithProgress(fontFetchUrl, setProgress);
+          const data = new Uint8Array(await fb.arrayBuffer());
+          f.data = data;
+          bytesTotal += data.length;
+          okCount++;
+          bar.classList.remove("indet");
+          bar.classList.add("done");
+          barFill.style.width = "100%";
+          updateFontUi(f, "ok", data.length);
+        } catch (err) {
+          console.warn("Font fetch failed:", f.resolved, err);
+          f.error = err && err.message ? err.message : String(err);
+          failCount++;
+          bar.classList.remove("indet");
+          bar.classList.add("fail");
+          updateFontUi(f, "err");
+        }
+      }
+
+      /* 5. Rewrite URLs for successfully-downloaded fonts */
+      const rewritten = rewriteCssUrls(cssText, rawUrl, byUrl);
+      const cssBytes = encoder.encode(rewritten);
+
+      /* 6. Build the ZIP */
+      const zipFiles = [{ name, data: cssBytes }];
+      for (const f of fonts) {
+        if (f.data) zipFiles.push({ name: f.zipPath, data: f.data });
+      }
+
+      const zipBlob = buildZip(zipFiles);
+      const zipName = name.replace(/\.[^.]*$/, "") + ".zip";
+
+      triggerDownload(zipBlob, zipName);
+
+      /* 7. Report */
+      fontsMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
+      previewEl.textContent = buildPreview(rewritten);
+      metaEl.textContent =
+        shortCssType + " + " + okCount + " font" + (okCount === 1 ? "" : "s") +
+        " · " + fmtBytes(zipBlob.size);
+
+      const summary =
+        "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
+        (failCount ? " · " + failCount + " font" + (failCount === 1 ? "" : "s") + " failed" : "");
+
+      setState(failCount && !okCount ? "err" : "ok", summary);
+
     } catch (err) {
       console.error(err);
-
       bar.classList.remove("indet", "done");
       bar.classList.add("fail");
       barFill.style.width = "100%";
@@ -687,13 +843,11 @@
       sizeChip.textContent = "failed";
 
       let msg = "Failed: " + (err && err.message ? err.message : String(err));
-
       if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
         msg += " — likely CORS. Enable the API proxy and try again.";
       } else if (proxy && /HTTP 5\d\d/.test(msg)) {
         msg += " — check the /api/fetch deployment logs.";
       }
-
       previewEl.textContent = "// " + msg;
       metaEl.textContent = "error";
       setState("err", msg);
@@ -702,19 +856,15 @@
     }
   }
 
-  /* ── Events ─────────────────────────────────────────────── */
+  /* ── Events ────────────────────────────────────────────── */
   goBtn.addEventListener("click", run);
 
   [urlInput, fnameInput].forEach((el) => {
     el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        run();
-      }
+      if (e.key === "Enter") { e.preventDefault(); run(); }
     });
   });
 
-  /* Extra safety: prevent double-tap zoom on iOS */
   let lastTouch = 0;
   document.addEventListener("touchend", (e) => {
     const now = Date.now();
