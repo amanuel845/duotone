@@ -22,6 +22,7 @@
     -webkit-tap-highlight-color:transparent;
   }
 
+  /* ── HEADER ─────────────────────────────── */
   header{
     flex:0 0 auto;display:flex;align-items:center;gap:8px;
     padding:9px 12px;padding-top:calc(9px + env(safe-area-inset-top));
@@ -39,22 +40,30 @@
     padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;
   }
 
+  /* ── TABS — 2×2 grid, always visible ───── */
   .tabs{
-    flex:0 0 auto;display:flex;gap:4px;padding:6px 10px;
-    background:var(--surface);border-bottom:1px solid var(--line);
-    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    padding:6px 10px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
   }
   .tab{
-    flex:0 0 auto;padding:7px 10px;
-    font:inherit;font-size:.72rem;font-weight:600;
+    padding:8px 6px;
+    font:inherit;font-size:.74rem;font-weight:600;
     color:var(--muted);background:#f8fafc;
     border:1px solid var(--line);border-radius:8px;
-    cursor:pointer;white-space:nowrap;
+    cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     transition:background .15s, color .15s, border-color .15s, transform .08s;
+    -webkit-tap-highlight-color:transparent;
   }
   .tab:active{transform:scale(.985);}
   .tab.active{color:#fff;background:var(--accent);border-color:var(--accent);}
 
+  /* ── MAIN ───────────────────────────────── */
   main{
     flex:1 1 auto;min-height:0;overflow-y:auto;
     -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
@@ -67,6 +76,7 @@
     background:var(--surface);border:1px solid var(--line);
     border-radius:var(--radius);padding:10px;
   }
+
   label{
     display:block;font-size:.66rem;font-weight:700;letter-spacing:.05em;
     text-transform:uppercase;color:var(--muted);margin-bottom:4px;
@@ -128,6 +138,7 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
+  /* ── PROGRESS ───────────────────────────── */
   .progress-card{padding:9px 10px 11px;}
   .progress-card:not([hidden]){margin-bottom:10px;}
   .progress-head{
@@ -146,9 +157,10 @@
   .bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a);}
   .bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important;}
 
+  /* ── LIST CARDS ─────────────────────────── */
   .fonts-card{padding:0;overflow:hidden;}
   .fonts-list{
-    list-style:none;max-height:40vh;overflow-y:auto;
+    list-style:none;max-height:38vh;overflow-y:auto;
     -webkit-overflow-scrolling:touch;
   }
   .fonts-list li{
@@ -190,6 +202,7 @@
   }
   .js-count{font-variant-numeric:tabular-nums;}
 
+  /* ── PREVIEW ────────────────────────────── */
   .preview-card{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
   .card-head{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -214,6 +227,7 @@
   pre::-webkit-scrollbar-thumb{background:#334155;border-radius:999px;}
   pre::-webkit-scrollbar-track{background:transparent;}
 
+  /* ── FOOTER ─────────────────────────────── */
   footer{
     flex:0 0 auto;display:flex;align-items:flex-start;gap:7px;
     padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
@@ -238,12 +252,14 @@
 </head>
 <body>
 
+  <!-- ══════════ HEADER ══════════ -->
   <header>
     <span class="logo" aria-hidden="true">⬇</span>
     <h1>Asset Fetcher</h1>
     <span class="chip" id="sizeChip">idle</span>
   </header>
 
+  <!-- ══════════ TABS ══════════ -->
   <nav class="tabs" role="tablist" aria-label="Mode">
     <button class="tab active" data-panel="css"   role="tab" aria-selected="true">CSS + Fonts</button>
     <button class="tab"        data-panel="all"   role="tab" aria-selected="false">All Assets</button>
@@ -251,8 +267,10 @@
     <button class="tab"        data-panel="local" role="tab" aria-selected="false">Local JS</button>
   </nav>
 
+  <!-- ══════════ MAIN ══════════ -->
   <main>
 
+    <!-- Shared progress -->
     <section class="card progress-card" id="progressCard" hidden>
       <div class="progress-head">
         <span id="pLeft">0 B</span>
@@ -263,7 +281,7 @@
       </div>
     </section>
 
-    <!-- ═════ PANEL 1: CSS + Fonts ═════ -->
+    <!-- ═════════ PANEL 1: CSS + Fonts ═════════ -->
     <div class="panel active" id="panel-css" role="tabpanel">
 
       <section class="card">
@@ -323,7 +341,7 @@
 
     </div>
 
-    <!-- ═════ PANEL 2: All Assets (Method 1, generic) ═════ -->
+    <!-- ═════════ PANEL 2: All Assets ═════════ -->
     <div class="panel" id="panel-all" role="tabpanel">
 
       <section class="card">
@@ -381,7 +399,7 @@
 
     </div>
 
-    <!-- ═════ PANEL 3: Remote JS ═════ -->
+    <!-- ═════════ PANEL 3: Remote JS ═════════ -->
     <div class="panel" id="panel-js" role="tabpanel">
 
       <section class="card">
@@ -430,7 +448,7 @@
 
     </div>
 
-    <!-- ═════ PANEL 4: Local JS ═════ -->
+    <!-- ═════════ PANEL 4: Local JS ═════════ -->
     <div class="panel" id="panel-local" role="tabpanel">
 
       <section class="card">
@@ -481,6 +499,7 @@
 
   </main>
 
+  <!-- ══════════ FOOTER ══════════ -->
   <footer>
     <span class="dot" id="dot" aria-hidden="true"></span>
     <span id="status" role="status" aria-live="polite">Ready.</span>
@@ -501,6 +520,7 @@
 
   const $ = (id) => document.getElementById(id);
 
+  /* ── Shared elements ──────────────────────────────────── */
   const progressCard = $("progressCard");
   const bar          = $("bar");
   const barFill      = $("barFill");
@@ -512,6 +532,7 @@
 
   const encoder = new TextEncoder();
 
+  /* ── Shared utilities ─────────────────────────────────── */
   function fmtBytes(n) {
     if (!Number.isFinite(n) || n < 0) return "—";
     if (n < 1024) return n + " B";
@@ -714,20 +735,23 @@
 
         refs.card.hidden        = false;
         refs.actionsCard.hidden = false;
-        refs.meta.textContent   = api.files.filter((f) => !f.isDir).length +
-                                  " files · " +
-                                  api.files.filter((f) => f.isDir).length + " dirs";
+
+        const fileCount = api.files.filter((f) => !f.isDir).length;
+        const dirCount  = api.files.filter((f) => f.isDir).length;
+        refs.meta.textContent = fileCount + " file" + (fileCount === 1 ? "" : "s") +
+                                (dirCount ? " · " + dirCount + " dir" + (dirCount === 1 ? "" : "s") : "");
+
         refs.selectAll.checked  = true;
         refs.selectAll.indeterminate = false;
         api.updateCount();
       },
 
       updateCount() {
-        const sel = api.files.filter((f) => f.checked && !f.isDir).length;
-        refs.count.textContent   = sel + " / " +
-                                   api.files.filter((f) => !f.isDir).length;
-        refs.selectAll.checked   = sel > 0 && sel === api.files.filter((f) => !f.isDir).length;
-        refs.selectAll.indeterminate = sel > 0 && sel < api.files.filter((f) => !f.isDir).length;
+        const filesOnly = api.files.filter((f) => !f.isDir);
+        const sel = filesOnly.filter((f) => f.checked).length;
+        refs.count.textContent   = sel + " / " + filesOnly.length;
+        refs.selectAll.checked   = sel > 0 && sel === filesOnly.length;
+        refs.selectAll.indeterminate = sel > 0 && sel < filesOnly.length;
       },
 
       updateRow(f, state, size) {
@@ -746,7 +770,6 @@
       },
 
       selected() {
-        // Only files can be downloaded; directories are skipped
         return api.files.filter((f) => f.checked && !f.isDir);
       },
     };
@@ -764,33 +787,29 @@
     return api;
   }
 
-  /* ══════════════════════════════════════════════════════════
-     Shared: parse an Apache/nginx style index HTML
-     ══════════════════════════════════════════════════════════ */
+  /* ── Shared index-HTML parser ────────────────────────── */
   function parseIndexHtml(html, baseUrl) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const links = doc.querySelectorAll("a[href]");
     const seen = new Set();
     const entries = [];
 
+    const baseObj = new URL(baseUrl);
+
     for (const a of links) {
       const href = (a.getAttribute("href") || "").trim();
       if (!href) continue;
       if (href.startsWith("#") || href.startsWith("?")) continue;
-      // Skip sort links and parent dir
       if (href === "/" || href === "./" || href === "../") continue;
-      if (/^\?/.test(href)) continue;   // column sort links
+      if (/^\?/.test(href)) continue;
 
       let resolved;
       try { resolved = new URL(href, baseUrl); }
       catch { continue; }
 
-      // Same origin + path prefix as base (avoid external links in the index)
-      const baseObj = new URL(baseUrl);
       if (resolved.origin !== baseObj.origin) continue;
 
       const isDir = resolved.pathname.endsWith("/");
-      // Strip query/hash for the clean URL
       const clean = resolved.origin + resolved.pathname;
       if (seen.has(clean)) continue;
       seen.add(clean);
@@ -802,20 +821,264 @@
       } catch { basename = ""; }
       if (!basename) continue;
 
-      entries.push({
-        url: clean,
-        basename,
-        isDir,
-        // Relative path inside the listing root (used for ZIP structure)
-        relPath: null,   // filled in by caller
-      });
+      entries.push({ url: clean, basename, isDir });
     }
     return entries;
   }
 
-  /* ══════════════════════════════════════════════════════════
-     TAB 2 — All Assets (recursive generic listing)
-     ══════════════════════════════════════════════════════════ */
+  /* ══════════════════════════════════════════════════════
+     TAB 1 — CSS + Fonts
+     ══════════════════════════════════════════════════════ */
+  const urlInput    = $("url");
+  const fnameInput  = $("fname");
+  const useProxy    = $("useProxy");
+  const bundleFonts = $("bundleFonts");
+  const goBtn       = $("go");
+  const btnLabel    = $("btnLabel");
+  const fontsCard   = $("fontsCard");
+  const fontsList   = $("fontsList");
+  const fontsMeta   = $("fontsMeta");
+  const previewEl   = $("preview");
+  const metaEl      = $("meta");
+
+  urlInput.value   = DEFAULT_CSS_URL;
+  fnameInput.value = DEFAULT_CSS_NAME;
+
+  let fnameTouched = false;
+  fnameInput.addEventListener("input", () => { fnameTouched = true; });
+  urlInput.addEventListener("input", () => {
+    if (!fnameTouched) {
+      try {
+        const u = new URL(urlInput.value.trim());
+        const seg = u.pathname.split("/").filter(Boolean).pop();
+        fnameInput.value = seg ? decodeURIComponent(seg) : "download.css";
+      } catch {}
+    }
+  });
+
+  function busyCss(on) {
+    goBtn.disabled = urlInput.disabled = fnameInput.disabled =
+      useProxy.disabled = bundleFonts.disabled = on;
+
+    const existing = goBtn.querySelector(".spinner");
+    if (on) {
+      if (!existing) {
+        const s = document.createElement("span");
+        s.className = "spinner";
+        goBtn.insertBefore(s, btnLabel);
+      }
+      btnLabel.textContent = "Fetching…";
+    } else {
+      if (existing) existing.remove();
+      btnLabel.textContent = "Fetch & Download";
+    }
+  }
+
+  const URL_RE = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/gi;
+  const FONT_EXT_RE = /\.(woff2?|ttf|otf|eot|svg)([?#].*)?$/i;
+
+  function extractFontUrls(cssText, cssBaseUrl) {
+    const out = [];
+    const seen = new Set();
+    let m;
+    URL_RE.lastIndex = 0;
+    while ((m = URL_RE.exec(cssText)) !== null) {
+      const raw = (m[2] || "").trim();
+      if (!raw) continue;
+      if (raw.startsWith("data:") || raw.startsWith("#") || raw.startsWith("blob:")) continue;
+      if (!FONT_EXT_RE.test(raw)) continue;
+
+      let resolved;
+      try { resolved = normalizeUrl(new URL(raw, cssBaseUrl).href); }
+      catch { continue; }
+      if (seen.has(resolved)) continue;
+      seen.add(resolved);
+
+      let basename;
+      try {
+        const u = new URL(resolved);
+        basename = decodeURIComponent(u.pathname.split("/").pop() || "font.bin");
+      } catch { basename = "font.bin"; }
+
+      out.push({ raw, resolved, basename });
+    }
+
+    const counts = new Map();
+    for (const f of out) {
+      const n = counts.get(f.basename) || 0;
+      counts.set(f.basename, n + 1);
+      if (n > 0) {
+        const d = f.basename.lastIndexOf(".");
+        f.zipName = d > 0
+          ? f.basename.slice(0, d) + "_" + n + f.basename.slice(d)
+          : f.basename + "_" + n;
+      } else {
+        f.zipName = f.basename;
+      }
+      f.zipPath = "webfonts/" + f.zipName;
+    }
+    return out;
+  }
+
+  function rewriteCssUrls(cssText, cssBaseUrl, fontByUrl) {
+    URL_RE.lastIndex = 0;
+    return cssText.replace(URL_RE, (match, q, raw) => {
+      const trimmed = (raw || "").trim();
+      if (!trimmed) return match;
+      if (trimmed.startsWith("data:") || trimmed.startsWith("#") || trimmed.startsWith("blob:")) return match;
+      let resolved;
+      try { resolved = normalizeUrl(new URL(trimmed, cssBaseUrl).href); }
+      catch { return match; }
+      const f = fontByUrl.get(resolved);
+      if (!f || !f.data) return match;
+      return 'url("' + f.zipPath + '")';
+    });
+  }
+
+  function renderFonts(fonts) {
+    fontsList.textContent = "";
+    for (const f of fonts) {
+      const li = document.createElement("li");
+      li.title = f.resolved;
+      const d = document.createElement("span"); d.className = "fdot";
+      const n = document.createElement("span"); n.className = "fname"; n.textContent = f.zipName;
+      const s = document.createElement("span"); s.className = "fsize"; s.textContent = "…";
+      li.append(d, n, s);
+      fontsList.appendChild(li);
+      f._el = { d, s };
+    }
+    fontsCard.hidden = false;
+    fontsMeta.textContent = fonts.length + " found";
+  }
+
+  function updateFontUi(f, state, size) {
+    if (!f._el) return;
+    f._el.d.className = "fdot" + (state ? " " + state : "");
+    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
+    else if (state === "err") f._el.s.textContent = "failed";
+  }
+
+  async function runCss() {
+    const rawUrl = urlInput.value.trim();
+    const name   = sanitizeFilename(fnameInput.value);
+    const proxy  = useProxy.checked;
+    const bundle = bundleFonts.checked;
+
+    let parsed;
+    try { parsed = new URL(rawUrl); }
+    catch { setState("err", "Invalid URL."); urlInput.focus(); return; }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      setState("err", "Only http(s) URLs are supported."); return;
+    }
+
+    busyCss(true);
+    setState("loading", (proxy ? "Proxying · " : "Direct · ") + parsed.hostname + "…");
+    showProgress(true);
+    resetProgress();
+    fontsCard.hidden = true;
+    fontsList.textContent = "";
+    metaEl.textContent = "—";
+    previewEl.textContent = "// Fetching CSS…";
+
+    try {
+      const cssFetchUrl = buildFetchUrl(rawUrl, proxy);
+      const { blob: cssBlob, type: cssType } = await fetchWithProgress(cssFetchUrl, setProgress);
+      const cssText = await cssBlob.text();
+
+      bar.classList.add("done");
+      barFill.style.width = "100%";
+      const shortCssType = (cssType || "text/css").split(";")[0];
+      metaEl.textContent = shortCssType + " · " + fmtBytes(cssBlob.size) + (proxy ? " · proxied" : "");
+      sizeChip.textContent = fmtBytes(cssBlob.size);
+
+      if (!bundle) {
+        triggerDownload(cssBlob, name);
+        previewEl.textContent = buildPreview(cssText);
+        setState("ok", "Saved “" + name + "” (" + fmtBytes(cssBlob.size) + ")" + (proxy ? " via proxy" : ""));
+        return;
+      }
+
+      const fonts = extractFontUrls(cssText, rawUrl);
+
+      if (fonts.length === 0) {
+        triggerDownload(cssBlob, name);
+        previewEl.textContent = buildPreview(cssText);
+        setState("ok", "No fonts found — saved CSS only (" + fmtBytes(cssBlob.size) + ")");
+        return;
+      }
+
+      renderFonts(fonts);
+      setState("loading", fonts.length + " font" + (fonts.length === 1 ? "" : "s") + " to fetch…");
+
+      const byUrl = new Map();
+      for (const f of fonts) byUrl.set(f.resolved, f);
+
+      let okCount = 0, failCount = 0;
+
+      for (let i = 0; i < fonts.length; i++) {
+        const f = fonts[i];
+        updateFontUi(f, "loading");
+        setState("loading", "Font " + (i + 1) + "/" + fonts.length + " · " + f.zipName);
+        resetProgress();
+        bar.classList.add("indet");
+        try {
+          const { blob: fb } = await fetchWithProgress(buildFetchUrl(f.resolved, proxy), setProgress);
+          const data = new Uint8Array(await fb.arrayBuffer());
+          f.data = data; okCount++;
+          bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
+          updateFontUi(f, "ok", data.length);
+        } catch (err) {
+          f.error = err && err.message ? err.message : String(err);
+          failCount++;
+          bar.classList.remove("indet"); bar.classList.add("fail");
+          updateFontUi(f, "err");
+        }
+      }
+
+      const rewritten = rewriteCssUrls(cssText, rawUrl, byUrl);
+      const cssBytes  = encoder.encode(rewritten);
+
+      const zipFiles = [{ name, data: cssBytes }];
+      for (const f of fonts) if (f.data) zipFiles.push({ name: f.zipPath, data: f.data });
+
+      const zipBlob = buildZip(zipFiles);
+      const zipName = name.replace(/\.[^.]*$/, "") + ".zip";
+      triggerDownload(zipBlob, zipName);
+
+      fontsMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
+      previewEl.textContent = buildPreview(rewritten);
+      metaEl.textContent =
+        shortCssType + " + " + okCount + " font" + (okCount === 1 ? "" : "s") +
+        " · " + fmtBytes(zipBlob.size);
+      sizeChip.textContent = fmtBytes(zipBlob.size);
+
+      setState(
+        failCount && !okCount ? "err" : "ok",
+        "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
+        (failCount ? " · " + failCount + " font" + (failCount === 1 ? "" : "s") + " failed" : "")
+      );
+    } catch (err) {
+      console.error(err);
+      bar.classList.remove("indet", "done"); bar.classList.add("fail");
+      barFill.style.width = "100%"; pRight.textContent = "";
+      sizeChip.textContent = "failed";
+      let msg = "Failed: " + (err && err.message ? err.message : String(err));
+      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
+        msg += " — likely CORS. Enable the API proxy and try again.";
+      } else if (proxy && /HTTP 5\d\d/.test(msg)) {
+        msg += " — check the /api/fetch deployment logs.";
+      }
+      previewEl.textContent = "// " + msg;
+      metaEl.textContent = "error";
+      setState("err", msg);
+    } finally {
+      busyCss(false);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     TAB 2 — All Assets
+     ══════════════════════════════════════════════════════ */
   const allDirInput    = $("allDir");
   const allRecursive   = $("allRecursive");
   const allUseProxy    = $("allUseProxy");
@@ -849,20 +1112,15 @@
     }
   }
 
-  /**
-   * BFS through the directory index starting at rootUrl.
-   * Returns { files: [...], dirs: N } where each file has:
-   *   { url, basename, relPath, size? }
-   */
   async function listAllAssets(rootUrl, viaProxy, recursive) {
     const root = new URL(rootUrl);
     if (!root.pathname.endsWith("/")) root.pathname += "/";
 
-    const rootPath = root.pathname;   // e.g. "/assets/"
+    const rootPath = root.pathname;
     const queue = [{ url: root.href, depth: 0 }];
     const visited = new Set([root.href]);
     const files = [];
-    const dirCount = { n: 0 };
+    let dirCount = 0;
 
     while (queue.length) {
       const { url, depth } = queue.shift();
@@ -879,25 +1137,20 @@
       const ct = res.headers.get("content-type") || "";
       const html = await res.text();
 
-      if (!/html/i.test(ct) && !/<a\s/i.test(html)) {
-        // Not an index page — treat as a leaf we can't traverse
-        continue;
-      }
+      if (!/html/i.test(ct) && !/<a\s/i.test(html)) continue;
 
       const entries = parseIndexHtml(html, url);
 
       for (const e of entries) {
-        // Only keep entries that descend from rootPath
         const u = new URL(e.url);
         if (!u.pathname.startsWith(rootPath)) continue;
 
-        // Compute the relative path inside the listing root
         let rel = u.pathname.slice(rootPath.length);
         try { rel = decodeURIComponent(rel); } catch {}
         if (rel.endsWith("/")) rel = rel.slice(0, -1);
 
         if (e.isDir) {
-          dirCount.n++;
+          dirCount++;
           if (recursive && depth + 1 <= MAX_DEPTH && !visited.has(e.url)) {
             visited.add(e.url);
             queue.push({ url: e.url, depth: depth + 1 });
@@ -906,7 +1159,7 @@
           files.push({
             url: e.url,
             basename: e.basename,
-            relPath: rel,          // for ZIP structure
+            relPath: rel,
             isDir: false,
           });
         }
@@ -914,12 +1167,12 @@
     }
 
     files.sort((a, b) => a.relPath.localeCompare(b.relPath));
-    return { files, dirs: dirCount.n };
+    return { files, dirs: dirCount };
   }
 
   async function runAllList() {
-    const rawUrl = allDirInput.value.trim();
-    const proxy  = allUseProxy.checked;
+    const rawUrl  = allDirInput.value.trim();
+    const proxy   = allUseProxy.checked;
     const recurse = allRecursive.checked;
 
     let parsed;
@@ -991,7 +1244,6 @@
         f.data = data; okCount++;
         bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
         allList.updateRow(f, "ok", data.length);
-        // Preserve directory structure in the ZIP
         zipFiles.push({ name: f.relPath || f.basename, data });
       } catch (err) {
         failCount++;
@@ -1019,9 +1271,9 @@
     busyAll(false);
   }
 
-  /* ══════════════════════════════════════════════════════════
-     TAB 3 — Remote JS (same as before, filters .js)
-     ══════════════════════════════════════════════════════════ */
+  /* ══════════════════════════════════════════════════════
+     TAB 3 — Remote JS
+     ══════════════════════════════════════════════════════ */
   const jsDirInput  = $("jsDir");
   const jsUseProxy  = $("jsUseProxy");
   const jsListBtn   = $("jsListBtn");
@@ -1082,7 +1334,7 @@
     const entries = parseIndexHtml(html, dirUrl);
     const out = entries
       .filter((e) => !e.isDir && /\.js(\?|#|$)/i.test(e.url))
-      .map((e) => ({ url: e.url, basename: e.basename }));
+      .map((e) => ({ url: e.url, basename: e.basename, isDir: false }));
 
     out.sort((a, b) => a.basename.localeCompare(b.basename));
     return out;
@@ -1111,6 +1363,7 @@
       bar.classList.remove("indet"); bar.classList.add("done");
       barFill.style.width = "100%";
       pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
+      pRight.textContent = "";
 
       if (files.length === 0) {
         setState("err", "No .js files found in the directory listing.");
@@ -1187,9 +1440,9 @@
     busyRemote(false);
   }
 
-  /* ══════════════════════════════════════════════════════════
-     TAB 4 — Local JS (Method 2, unchanged)
-     ══════════════════════════════════════════════════════════ */
+  /* ══════════════════════════════════════════════════════
+     TAB 4 — Local JS
+     ══════════════════════════════════════════════════════ */
   const localDirInput  = $("localDir");
   const localRecursive = $("localRecursive");
   const localListBtn   = $("localListBtn");
@@ -1249,7 +1502,7 @@
       const payload = await fetchLocalList(dir, recursive);
       const files = (payload.files || []).map((f) => ({
         url: f.path, path: f.path, name: f.name,
-        basename: f.name, size: f.size, relPath: f.name,
+        basename: f.name, size: f.size, relPath: f.name, isDir: false,
       }));
 
       bar.classList.remove("indet"); bar.classList.add("done");
@@ -1327,9 +1580,9 @@
     busyLocal(false);
   }
 
-  /* ══════════════════════════════════════════════════════════
+  /* ══════════════════════════════════════════════════════
      ZIP writer (STORE-only)
-     ══════════════════════════════════════════════════════════ */
+     ══════════════════════════════════════════════════════ */
   const CRC_TABLE = (() => {
     const t = new Uint32Array(256);
     for (let n = 0; n < 256; n++) {
