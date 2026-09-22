@@ -1,79 +1,123 @@
 // api/fetch.js
-// Simple CORS proxy for fetching remote files (CSS, JS, fonts, text).
+// CORS-friendly proxy for fetching remote files (CSS, JS, fonts, text).
 // Usage:  GET /api/fetch?url=https%3A%2F%2Fexample.com%2Fstyle.css
-//
-// Node.js runtime (default on Vercel). Node 18+ required for global fetch.
 
 const DEFAULT_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-// Hard cap to prevent abuse (bytes). Adjust as needed.
-const MAX_BYTES = 12 * 1024 * 1024; // 12 MB (fonts can be chunky)
-
-// Optional host allowlist. Leave empty to allow any http(s) host.
-// Example: ["www.library.illinois.edu", "library.illinois.edu"]
+const MAX_BYTES = 12 * 1024 * 1024;
 const ALLOWED_HOSTS = [];
 
+// Set CORS on EVERY response, success or error, so the browser
+// can always read the body instead of reporting status 0.
+function applyCors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+  res.setHeader("Access-Control-Max-Age", "86400");
+}
+
+function sendError(res, status, message, extra) {
+  applyCors(res);
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  const body = { error: message };
+  if (extra) body.detail = extra;
+  res.end(JSON.stringify(body));
+}
+
 export default async function handler(req, res) {
-  if (req.method !== "GET" && req.method !== "HEAD") {
-    res.setHeader("Allow", "GET, HEAD");
-    return res.status(405).json({ error: "Method not allowed" });
+  // Preflight
+  if (req.method === "OPTIONS") {
+    applyCors(res);
+    res.statusCode = 204;
+    return res.end();
   }
 
-  const { url } = req.query;
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.setHeader("Allow", "GET, HEAD, OPTIONS");
+    return sendError(res, 405, "Method not allowed");
+  }
+
+  const url = req.query && req.query.url;
   if (!url || typeof url !== "string") {
-    return res.status(400).json({ error: "Missing ?url= parameter" });
+    return sendError(res, 400, "Missing ?url= parameter");
   }
 
   let target;
   try {
     target = new URL(url);
   } catch {
-    return res.status(400).json({ error: "Invalid URL" });
+    return sendError(res, 400, "Invalid URL");
   }
 
   if (target.protocol !== "http:" && target.protocol !== "https:") {
-    return res.status(400).json({ error: "Only http:// and https:// are allowed" });
+    return sendError(res, 400, "Only http:// and https:// are allowed");
   }
 
   if (ALLOWED_HOSTS.length && !ALLOWED_HOSTS.includes(target.hostname)) {
-    return res.status(403).json({ error: "Host not allowed" });
+    return sendError(res, 403, "Host not allowed");
   }
 
+  // Abort at 8s so we always respond before Vercel's 10s kill.
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timer = setTimeout(() => controller.abort(), 8000);
 
   let upstream;
   try {
     upstream = await fetch(target.toString(), {
-      method: req.method,
+      method: req.method === "HEAD" ? "HEAD" : "GET",
       redirect: "follow",
       signal: controller.signal,
       headers: {
         "User-Agent": DEFAULT_UA,
-        // Permissive: works for CSS, JS, fonts, images…
-        Accept: "*/*",
-        "Accept-Encoding": "identity", // keep Content-Length accurate
+        // Font Awesome / Cloudflare in particular wants these exact headers.
+        Accept: "text/css,text/plain,application/javascript,application/font-woff2,font/woff2,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "identity",
+        "Cache-Control": "no-cache",
+        "Sec-Fetch-Dest": "style",
+        "Sec-Fetch-Mode": "no-cors",
+        "Sec-Fetch-Site": "cross-site",
       },
     });
   } catch (err) {
-    clearTimeout(timeout);
-    const msg = err?.name === "AbortError" ? "Upstream timeout" : "Upstream fetch failed";
-    return res.status(502).json({ error: msg, detail: String(err?.message || err) });
+    clearTimeout(timer);
+    const isAbort = err && err.name === "AbortError";
+    return sendError(
+      res,
+      isAbort ? 504 : 502,
+      isAbort ? "Upstream timeout (8s)" : "Upstream fetch failed",
+      String((err && err.message) || err)
+    );
   }
-  clearTimeout(timeout);
+  clearTimeout(timer);
 
+  // Forward upstream errors verbatim (still with CORS headers).
   if (!upstream.ok) {
-    return res
-      .status(upstream.status)
-      .json({ error: `Upstream responded ${upstream.status} ${upstream.statusText}` });
+    let body = "";
+    try {
+      body = await upstream.text();
+      if (body.length > 500) body = body.slice(0, 500) + "...";
+    } catch {
+      body = "(unreadable)";
+    }
+    return sendError(
+      res,
+      upstream.status,
+      `Upstream responded ${upstream.status} ${upstream.statusText}`,
+      body
+    );
   }
 
   const declared = Number(upstream.headers.get("content-length")) || 0;
   if (declared > MAX_BYTES) {
-    return res.status(413).json({ error: "File too large" });
+    return sendError(res, 413, `File too large (${declared} bytes > ${MAX_BYTES})`);
   }
 
+  // Success path
+  applyCors(res);
   res.statusCode = 200;
   res.setHeader(
     "Content-Type",
@@ -82,19 +126,16 @@ export default async function handler(req, res) {
   if (declared) res.setHeader("Content-Length", String(declared));
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Proxy", "vercel-fetch");
-  res.setHeader("Access-Control-Allow-Origin", "*");
 
   if (req.method === "HEAD") {
-    res.end();
-    return;
+    return res.end();
   }
 
   try {
     if (!upstream.body) {
       const buf = Buffer.from(await upstream.arrayBuffer());
       if (buf.length > MAX_BYTES) {
-        res.statusCode = 413;
-        return res.end(JSON.stringify({ error: "File too large" }));
+        return sendError(res, 413, "File too large");
       }
       return res.end(buf);
     }
@@ -114,7 +155,7 @@ export default async function handler(req, res) {
       }
     }
     res.end();
-  } catch {
+  } catch (err) {
     try { res.end(); } catch {}
   }
 }
