@@ -5,7 +5,7 @@
 // Node.js runtime (default on Vercel). Node 18+ required for global fetch.
 
 const DEFAULT_UA =
-  "Mozilla/5.0 (compatible; CssFetcherProxy/1.0; +https://vercel.com)";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 // Hard cap to prevent abuse (bytes). Adjust as needed.
 const MAX_BYTES = 12 * 1024 * 1024; // 12 MB (fonts can be chunky)
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20000);
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
   let upstream;
   try {
