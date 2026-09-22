@@ -6,1705 +6,1390 @@
 <meta name="theme-color" content="#2563eb">
 <title>Asset Fetcher</title>
 <style>
-  :root{
-    --bg:#f1f5f9; --surface:#ffffff; --line:#e2e8f0;
-    --text:#0f172a; --muted:#64748b; --accent:#2563eb;
-    --ok:#16a34a; --err:#dc2626;
-    --code-bg:#0f172a; --code-fg:#cbd5e1; --radius:10px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
-  body{
-    height:100vh;height:100dvh;overflow:hidden;
-    display:flex;flex-direction:column;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);
-    -webkit-tap-highlight-color:transparent;
-  }
-
-  /* ── HEADER ─────────────────────────────── */
-  header{
-    flex:0 0 auto;display:flex;align-items:center;gap:8px;
-    padding:9px 12px;padding-top:calc(9px + env(safe-area-inset-top));
-    background:var(--surface);border-bottom:1px solid var(--line);
-  }
-  .logo{
-    flex:0 0 auto;width:22px;height:22px;border-radius:6px;
-    background:var(--accent);color:#fff;display:grid;place-items:center;
-    font-size:.72rem;font-weight:700;line-height:1;
-  }
-  header h1{font-size:.9rem;font-weight:650;letter-spacing:-.01em;white-space:nowrap;}
-  .chip{
-    margin-left:auto;font-size:.66rem;color:var(--muted);
-    background:#f8fafc;border:1px solid var(--line);border-radius:999px;
-    padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;
-  }
-
-  /* ── TABS — 2×2 grid, always visible ───── */
-  .tabs{
-    flex:0 0 auto;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-    padding:6px 10px;
-    background:var(--surface);
-    border-bottom:1px solid var(--line);
-  }
-  .tab{
-    padding:8px 6px;
-    font:inherit;font-size:.74rem;font-weight:600;
-    color:var(--muted);background:#f8fafc;
-    border:1px solid var(--line);border-radius:8px;
-    cursor:pointer;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    transition:background .15s, color .15s, border-color .15s, transform .08s;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .tab:active{transform:scale(.985);}
-  .tab.active{color:#fff;background:var(--accent);border-color:var(--accent);}
-
-  /* ── MAIN ───────────────────────────────── */
-  main{
-    flex:1 1 auto;min-height:0;overflow-y:auto;
-    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
-    padding:10px;
-  }
-  .panel{display:none;flex-direction:column;gap:10px;}
-  .panel.active{display:flex;}
-
-  .card{
-    background:var(--surface);border:1px solid var(--line);
-    border-radius:var(--radius);padding:10px;
-  }
-
-  label{
-    display:block;font-size:.66rem;font-weight:700;letter-spacing:.05em;
-    text-transform:uppercase;color:var(--muted);margin-bottom:4px;
-  }
-  input[type="url"], input[type="text"]{
-    width:100%;font:inherit;font-size:16px;padding:9px 10px;
-    color:var(--text);background:#f8fafc;border:1px solid var(--line);
-    border-radius:8px;outline:none;
-    transition:border-color .15s, box-shadow .15s, background .15s;
-  }
-  input[type="url"]:focus, input[type="text"]:focus{
-    background:#fff;border-color:var(--accent);
-    box-shadow:0 0 0 3px rgba(37,99,235,.13);
-  }
-  input:disabled{opacity:.6;}
-  .field + .field{margin-top:8px;}
-
-  .toggle-row{
-    margin-top:10px;display:flex;align-items:center;gap:9px;
-    padding:8px 10px;background:#f8fafc;border:1px solid var(--line);
-    border-radius:8px;cursor:pointer;user-select:none;
-  }
-  .toggle-row input{position:absolute;opacity:0;pointer-events:none;}
-  .switch{
-    flex:0 0 auto;width:34px;height:20px;border-radius:999px;
-    background:#cbd5e1;position:relative;transition:background .18s;
-  }
-  .switch::after{
-    content:"";position:absolute;top:2px;left:2px;
-    width:16px;height:16px;border-radius:50%;background:#fff;
-    box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s;
-  }
-  .toggle-row input:checked ~ .switch{background:var(--accent);}
-  .toggle-row input:checked ~ .switch::after{transform:translateX(14px);}
-  .toggle-row input:disabled ~ .switch{opacity:.55;}
-  .toggle-text{
-    flex:1 1 auto;min-width:0;font-size:.78rem;color:var(--text);line-height:1.25;
-  }
-  .toggle-text code{
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-size:.72rem;background:#eef2f7;padding:1px 5px;
-    border-radius:4px;color:#334155;
-  }
-  .toggle-text small{display:block;font-size:.66rem;color:var(--muted);margin-top:1px;}
-
-  button{
-    width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;
-    gap:8px;font:inherit;font-size:.9rem;font-weight:650;padding:11px 14px;
-    color:#fff;background:var(--accent);border:none;border-radius:9px;
-    cursor:pointer;transition:background .15s, transform .08s;
-  }
-  button:active:not(:disabled){transform:scale(.985);}
-  button:disabled{opacity:.65;cursor:not-allowed;}
-
-  .spinner{
-    flex:0 0 auto;width:14px;height:14px;border-radius:50%;
-    border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
-    animation:spin .6s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-
-  /* ── PROGRESS ───────────────────────────── */
-  .progress-card{padding:9px 10px 11px;}
-  .progress-card:not([hidden]){margin-bottom:10px;}
-  .progress-head{
-    display:flex;justify-content:space-between;gap:8px;font-size:.68rem;
-    color:var(--muted);margin-bottom:6px;font-variant-numeric:tabular-nums;
-  }
-  .progress-head span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .bar{position:relative;height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;}
-  .bar > i{
-    display:block;height:100%;width:0;border-radius:999px;
-    background:linear-gradient(90deg,#3b82f6,#2563eb);
-    transition:width .15s linear;
-  }
-  .bar.indet > i{width:35% !important;transition:none;animation:slide 1.15s ease-in-out infinite;}
-  @keyframes slide{0%{transform:translateX(-110%);}100%{transform:translateX(320%);}}
-  .bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a);}
-  .bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important;}
-
-  /* ── LIST CARDS ─────────────────────────── */
-  .fonts-card{padding:0;overflow:hidden;}
-  .fonts-list{
-    list-style:none;max-height:38vh;overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-  .fonts-list li{
-    display:flex;align-items:center;gap:8px;padding:8px 10px;
-    border-bottom:1px solid var(--line);font-size:.75rem;
-  }
-  .fonts-list li:last-child{border-bottom:none;}
-  .fonts-list li input[type="checkbox"]{
-    flex:0 0 auto;margin:0;cursor:pointer;
-    accent-color:var(--accent);width:16px;height:16px;
-  }
-  .fdot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#cbd5e1;}
-  .fdot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
-  .fdot.ok{background:var(--ok);}
-  .fdot.err{background:var(--err);}
-  .fdot.dir{background:#f59e0b;width:8px;height:8px;}
-  .fname{
-    flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
-    white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-    font-size:.72rem;color:#334155;
-  }
-  .fname.dir{color:#b45309;font-weight:600;}
-  .fsize{
-    flex:0 0 auto;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.68rem;
-  }
-
-  .js-toolbar{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    padding:7px 10px;border-bottom:1px solid var(--line);
-    background:#fafbfc;font-size:.72rem;color:var(--muted);
-  }
-  .js-selectall{
-    display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;
-    font-weight:600;color:var(--text);margin:0;
-    text-transform:none;letter-spacing:0;font-size:.75rem;
-  }
-  .js-selectall input[type="checkbox"]{
-    margin:0;cursor:pointer;accent-color:var(--accent);width:16px;height:16px;
-  }
-  .js-count{font-variant-numeric:tabular-nums;}
-
-  /* ── PREVIEW ────────────────────────────── */
-  .preview-card{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-  .card-head{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    padding:8px 10px;border-bottom:1px solid var(--line);
-    font-size:.66rem;font-weight:700;letter-spacing:.05em;
-    text-transform:uppercase;color:var(--muted);
-  }
-  .card-head .meta{
-    font-weight:500;font-size:.66rem;letter-spacing:0;text-transform:none;
-    color:var(--muted);font-variant-numeric:tabular-nums;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-    max-width:60%;text-align:right;
-  }
-  pre{
-    margin:0;padding:10px;max-height:32vh;min-height:100px;overflow:auto;
-    -webkit-overflow-scrolling:touch;
-    background:var(--code-bg);color:var(--code-fg);
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    font-size:11px;line-height:1.55;white-space:pre;tab-size:2;
-  }
-  pre::-webkit-scrollbar{width:7px;height:7px;}
-  pre::-webkit-scrollbar-thumb{background:#334155;border-radius:999px;}
-  pre::-webkit-scrollbar-track{background:transparent;}
-
-  /* ── FOOTER ─────────────────────────────── */
-  footer{
-    flex:0 0 auto;display:flex;align-items:flex-start;gap:7px;
-    padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
-    background:var(--surface);border-top:1px solid var(--line);
-    font-size:.72rem;line-height:1.35;color:var(--muted);
-  }
-  .dot{
-    flex:0 0 auto;width:7px;height:7px;margin-top:4px;border-radius:50%;
-    background:#94a3b8;
-  }
-  .dot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
-  .dot.ok{background:var(--ok);}
-  .dot.err{background:var(--err);}
-  @keyframes pulse{50%{opacity:.25;}}
-
-  #status{
-    flex:1 1 auto;min-width:0;
-    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-    overflow:hidden;word-break:break-word;
-  }
+:root{--bg:#f1f5f9;--surface:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--accent:#2563eb;--ok:#16a34a;--err:#dc2626;--radius:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--text);background:var(--bg);-webkit-tap-highlight-color:transparent}
+header,nav,footer{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--line);padding:9px 12px}
+header{padding-top:calc(9px + env(safe-area-inset-top))}
+header{display:flex;align-items:center;gap:8px}
+h1{font-size:.9rem;font-weight:650;white-space:nowrap}
+.chip{margin-left:auto;font-size:.66rem;color:var(--muted);background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-variant-numeric:tabular-nums}
+nav{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 10px}
+.tab{padding:8px 6px;font:inherit;font-size:.74rem;font-weight:600;color:var(--muted);background:#f8fafc;border:1px solid var(--line);border-radius:8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s,border-color .15s,transform .08s}
+.tab:active{transform:scale(.985)}
+.tab.active{color:#fff;background:var(--accent);border-color:var(--accent)}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:10px}
+.panel{display:none;flex-direction:column;gap:10px}
+.panel.active{display:flex}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px}
+.card.nopad{padding:0;overflow:hidden}
+label{display:block;font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+input[type=url],input[type=text]{width:100%;padding:9px 10px;color:var(--text);background:#f8fafc;border:1px solid var(--line);border-radius:8px;outline:none;font:inherit;font-size:16px;transition:border-color .15s,box-shadow .15s,background .15s}
+input:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.13)}
+input:disabled{opacity:.6}
+.field + .field{margin-top:8px}
+.toggle{position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;cursor:pointer;user-select:none;margin-top:8px;font-size:.78rem;line-height:1.25}
+.toggle input{position:absolute;opacity:0;pointer-events:none}
+.switch{position:relative;width:34px;height:20px;border-radius:999px;background:#cbd5e1;transition:background .18s;flex:0 0 auto}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s}
+.toggle input:checked ~ .switch{background:var(--accent)}
+.toggle input:checked ~ .switch::after{transform:translateX(14px)}
+.toggle input:disabled ~ .switch{opacity:.55}
+.toggle code{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;background:#eef2f7;padding:1px 5px;border-radius:4px;color:#334155}
+.toggle small{display:block;font-size:.66rem;color:var(--muted);margin-top:1px}
+button{width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;color:#fff;background:var(--accent);border:0;border-radius:9px;cursor:pointer;font:inherit;font-size:.9rem;font-weight:650;transition:background .15s,transform .08s}
+button:active:not(:disabled){transform:scale(.985)}
+button:disabled{opacity:.65;cursor:not-allowed}
+.spinner{flex:0 0 auto;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-card{padding:9px 10px 11px}
+.progress-card:not([hidden]){margin-bottom:10px}
+.progress-head{display:flex;justify-content:space-between;gap:8px;font-size:.68rem;color:var(--muted);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.progress-head span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{position:relative;height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+.bar > i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#3b82f6,#2563eb);transition:width .15s linear}
+.bar.indet > i{width:35% !important;transition:none;animation:slide 1.15s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(320%)}}
+.bar.done > i{background:linear-gradient(90deg,#22c55e,#16a34a)}
+.bar.fail > i{background:linear-gradient(90deg,#f87171,#dc2626);width:100% !important}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.card-head .meta{font-weight:500;font-size:.66rem;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%;text-align:right}
+.fonts-list{list-style:none;max-height:38vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.font-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-top:1px solid var(--line);font-size:.75rem}
+.font-item:first-child{border-top:0}
+.font-item input[type=checkbox]{flex:0 0 auto;width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
+.fdot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#cbd5e1}
+.fdot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite}
+.fdot.ok{background:var(--ok)}
+.fdot.err{background:var(--err)}
+.fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:#334155}
+.fsize{flex:0 0 auto;color:var(--muted);font-size:.68rem;font-variant-numeric:tabular-nums}
+@keyframes pulse{50%{opacity:.25}}
+.tree-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line);background:#fafbfc;font-size:.72rem;color:var(--muted)}
+.tree-toolbar label{margin:0;text-transform:none;letter-spacing:0;font-size:.75rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;cursor:pointer}
+.tree-toolbar input[type=checkbox]{margin:0;width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+.tree-list,.tree-children{list-style:none;margin:0;padding:0}
+.tree-list{max-height:42vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface)}
+.tree-children{display:none;padding-left:8px;margin-left:12px;border-left:1px solid var(--line)}
+.tree-children.open{display:block}
+.tree-item{border-top:1px solid var(--line)}
+.tree-item:first-child{border-top:0}
+.tree-row{display:flex;align-items:center;gap:6px;padding:7px 10px;font-size:.75rem}
+.tree-row.dir{cursor:pointer;user-select:none;transition:background .12s}
+.tree-row.dir:hover{background:#f8fafc}
+.tree-row input[type=checkbox]{flex:0 0 auto;width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
+.tree-tri{flex:0 0 auto;width:14px;text-align:center;font-size:.72rem;color:var(--muted);user-select:none;font-family:ui-monospace,Menlo,monospace}
+.tree-dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#cbd5e1}
+.tree-dot.dir{background:#f59e0b;width:8px;height:8px}
+.tree-dot.loading{background:var(--accent);animation:pulse 1s ease-in-out infinite}
+.tree-dot.ok{background:var(--ok)}
+.tree-dot.err{background:var(--err)}
+.tree-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:#334155}
+.tree-name.dir{color:#b45309;font-weight:600}
+.tree-size{flex:0 0 auto;color:var(--muted);font-size:.68rem;font-variant-numeric:tabular-nums}
+pre{margin:0;padding:10px;max-height:32vh;min-height:100px;overflow:auto;background:#0f172a;color:#cbd5e1;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.55;white-space:pre;tab-size:2}
+footer{border-bottom:0;border-top:1px solid var(--line);display:flex;align-items:flex-start;gap:7px;padding-bottom:calc(9px + env(safe-area-inset-bottom));font-size:.72rem;line-height:1.35;color:var(--muted)}
+.dot{flex:0 0 auto;width:7px;height:7px;margin-top:4px;border-radius:50%;background:#94a3b8}
+.dot.load{background:var(--accent);animation:pulse 1s ease-in-out infinite}
+.dot.ok{background:var(--ok)}
+.dot.err{background:var(--err)}
+#status{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 </style>
 </head>
 <body>
 
-  <!-- ══════════ HEADER ══════════ -->
-  <header>
-    <span class="logo" aria-hidden="true">⬇</span>
-    <h1>Asset Fetcher</h1>
-    <span class="chip" id="sizeChip">idle</span>
-  </header>
+<header>
+  <h1>Asset Fetcher</h1>
+  <span class="chip" id="sizeChip">idle</span>
+</header>
 
-  <!-- ══════════ TABS ══════════ -->
-  <nav class="tabs" role="tablist" aria-label="Mode">
-    <button class="tab active" data-panel="css"   role="tab" aria-selected="true">CSS + Fonts</button>
-    <button class="tab"        data-panel="all"   role="tab" aria-selected="false">All Assets</button>
-    <button class="tab"        data-panel="js"    role="tab" aria-selected="false">Remote JS</button>
-    <button class="tab"        data-panel="local" role="tab" aria-selected="false">Local JS</button>
-  </nav>
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-panel="css"   type="button">CSS + Fonts</button>
+  <button class="tab"        data-panel="all"   type="button">All Assets</button>
+  <button class="tab"        data-panel="js"    type="button">Remote JS</button>
+  <button class="tab"        data-panel="local" type="button">Local JS</button>
+</nav>
 
-  <!-- ══════════ MAIN ══════════ -->
-  <main>
+<main>
 
-    <!-- Shared progress -->
-    <section class="card progress-card" id="progressCard" hidden>
-      <div class="progress-head">
-        <span id="pLeft">0 B</span>
-        <span id="pRight"></span>
-      </div>
-      <div class="bar" id="bar" role="progressbar" aria-label="Progress">
-        <i id="barFill"></i>
-      </div>
-    </section>
+<section class="card progress-card" id="progressCard" hidden>
+  <div class="progress-head"><span id="pLeft">0 B</span><span id="pRight"></span></div>
+  <div class="bar" id="bar"><i id="barFill"></i></div>
+</section>
 
-    <!-- ═════════ PANEL 1: CSS + Fonts ═════════ -->
-    <div class="panel active" id="panel-css" role="tabpanel">
-
-      <section class="card">
-        <div class="field">
-          <label for="url">Target URL</label>
-          <input id="url" type="url" inputmode="url"
-                 autocomplete="off" autocapitalize="off"
-                 autocorrect="off" spellcheck="false" enterkeyhint="go"
-                 placeholder="https://example.com/style.css">
-        </div>
-        <div class="field">
-          <label for="fname">Download file name</label>
-          <input id="fname" type="text"
-                 autocomplete="off" autocapitalize="off"
-                 autocorrect="off" spellcheck="false" enterkeyhint="go"
-                 placeholder="duotone.min.css">
-        </div>
-
-        <label class="toggle-row" for="useProxy">
-          <input type="checkbox" id="useProxy" checked>
-          <span class="switch" aria-hidden="true"></span>
-          <span class="toggle-text">
-            Use API proxy <code>api/fetch.js</code>
-            <small>Bypasses CORS for the CSS <em>and</em> its fonts.</small>
-          </span>
-        </label>
-
-        <label class="toggle-row" for="bundleFonts">
-          <input type="checkbox" id="bundleFonts" checked>
-          <span class="switch" aria-hidden="true"></span>
-          <span class="toggle-text">
-            Bundle fonts into a ZIP
-            <small>Extracts <code>url(...)</code> from <code>@font-face</code> and packages everything.</small>
-          </span>
-        </label>
-
-        <button id="go" type="button">
-          <span id="btnLabel">Fetch &amp; Download</span>
-        </button>
-      </section>
-
-      <section class="card fonts-card" id="fontsCard" hidden>
-        <div class="card-head">
-          <span>Fonts</span>
-          <span class="meta" id="fontsMeta">—</span>
-        </div>
-        <ul class="fonts-list" id="fontsList"></ul>
-      </section>
-
-      <section class="card preview-card">
-        <div class="card-head">
-          <span>Preview</span>
-          <span class="meta" id="meta">—</span>
-        </div>
-        <pre id="preview"><code>// Fetched CSS content will appear here.</code></pre>
-      </section>
-
+<!-- TAB 1 -->
+<div class="panel active" id="panel-css">
+  <section class="card">
+    <div class="field">
+      <label for="url">Target URL</label>
+      <input id="url" type="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
     </div>
-
-    <!-- ═════════ PANEL 2: All Assets ═════════ -->
-    <div class="panel" id="panel-all" role="tabpanel">
-
-      <section class="card">
-        <div class="field">
-          <label for="allDir">Directory URL</label>
-          <input id="allDir" type="url" inputmode="url"
-                 autocomplete="off" autocapitalize="off"
-                 autocorrect="off" spellcheck="false" enterkeyhint="go"
-                 placeholder="https://example.com/assets/">
-        </div>
-
-        <label class="toggle-row" for="allRecursive">
-          <input type="checkbox" id="allRecursive" checked>
-          <span class="switch" aria-hidden="true"></span>
-          <span class="toggle-text">
-            Recurse into subdirectories
-            <small>Fetches each subfolder's index (max depth 4).</small>
-          </span>
-        </label>
-
-        <label class="toggle-row" for="allUseProxy">
-          <input type="checkbox" id="allUseProxy" checked>
-          <span class="switch" aria-hidden="true"></span>
-          <span class="toggle-text">
-            Use API proxy <code>api/fetch.js</code>
-            <small>Required for cross-origin directories.</small>
-          </span>
-        </label>
-
-        <button id="allListBtn" type="button">
-          <span id="allListLabel">List all files</span>
-        </button>
-      </section>
-
-      <section class="card fonts-card" id="allFilesCard" hidden>
-        <div class="card-head">
-          <span>Assets</span>
-          <span class="meta" id="allFilesMeta">—</span>
-        </div>
-        <div class="js-toolbar">
-          <label class="js-selectall">
-            <input type="checkbox" id="allSelectAll" checked>
-            <span>Select all</span>
-          </label>
-          <span class="js-count" id="allCount">0 / 0</span>
-        </div>
-        <ul class="fonts-list" id="allFilesList"></ul>
-      </section>
-
-      <section class="card" id="allActionsCard" hidden>
-        <button id="allZipBtn" type="button">
-          <span id="allZipLabel">Download selected as ZIP</span>
-        </button>
-      </section>
-
+    <div class="field">
+      <label for="fname">Download file name</label>
+      <input id="fname" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
     </div>
+    <label class="toggle" for="useProxy">
+      <input type="checkbox" id="useProxy" checked>
+      <span class="switch"></span>
+      <span>Use API proxy <code>api/fetch.js</code><small>Bypasses CORS for CSS and fonts.</small></span>
+    </label>
+    <label class="toggle" for="bundleFonts">
+      <input type="checkbox" id="bundleFonts" checked>
+      <span class="switch"></span>
+      <span>Bundle fonts into ZIP<small>Parses <code>url(...)</code> from <code>@font-face</code>.</small></span>
+    </label>
+    <button id="go" type="button"><span id="btnLabel">Fetch &amp; Download</span></button>
+  </section>
+  <section class="card nopad" id="fontsCard" hidden>
+    <div class="card-head"><span>Fonts</span><span class="meta" id="fontsMeta">-</span></div>
+    <ul class="fonts-list" id="fontsList"></ul>
+  </section>
+  <section class="card nopad">
+    <div class="card-head"><span>Preview</span><span class="meta" id="meta">-</span></div>
+    <pre id="preview">// Fetched CSS content appears here.</pre>
+  </section>
+</div>
 
-    <!-- ═════════ PANEL 3: Remote JS ═════════ -->
-    <div class="panel" id="panel-js" role="tabpanel">
-
-      <section class="card">
-        <div class="field">
-          <label for="jsDir">Directory URL</label>
-          <input id="jsDir" type="url" inputmode="url"
-                 autocomplete="off" autocapitalize="off"
-                 autocorrect="off" spellcheck="false" enterkeyhint="go"
-                 placeholder="https://example.com/assets/js/">
-        </div>
-
-        <label class="toggle-row" for="jsUseProxy">
-          <input type="checkbox" id="jsUseProxy" checked>
-          <span class="switch" aria-hidden="true"></span>
-          <span class="toggle-text">
-            Use API proxy <code>api/fetch.js</code>
-            <small>Required if the directory or files are cross-origin.</small>
-          </span>
-        </label>
-
-        <button id="jsListBtn" type="button">
-          <span id="jsListLabel">List JS files</span>
-        </button>
-      </section>
-
-      <section class="card fonts-card" id="jsFilesCard" hidden>
-        <div class="card-head">
-          <span>JS files</span>
-          <span class="meta" id="jsFilesMeta">—</span>
-        </div>
-        <div class="js-toolbar">
-          <label class="js-selectall">
-            <input type="checkbox" id="jsSelectAll" checked>
-            <span>Select all</span>
-          </label>
-          <span class="js-count" id="jsCount">0 / 0</span>
-        </div>
-        <ul class="fonts-list" id="jsFilesList"></ul>
-      </section>
-
-      <section class="card" id="jsActionsCard" hidden>
-        <button id="jsZipBtn" type="button">
-          <span id="jsZipLabel">Download selected as ZIP</span>
-        </button>
-      </section>
-
+<!-- TAB 2 -->
+<div class="panel" id="panel-all">
+  <section class="card">
+    <div class="field">
+      <label for="allDir">Directory URL</label>
+      <input id="allDir" type="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
     </div>
-
-    <!-- ═════════ PANEL 4: Local JS ═════════ -->
-    <div class="panel" id="panel-local" role="tabpanel">
-
-      <section class="card">
-        <div class="field">
-          <label for="localDir">Path inside your deployment's /public</label>
-          <input id="localDir" type="text"
-                 autocomplete="off" autocapitalize="off"
-                 autocorrect="off" spellcheck="false" enterkeyhint="go"
-                 placeholder="assets/js">
-        </div>
-
-        <label class="toggle-row" for="localRecursive">
-          <input type="checkbox" id="localRecursive">
-          <span class="switch" aria-hidden="true"></span>
-          <span class="toggle-text">
-            Include subdirectories
-            <small>Reads nested folders under the chosen path (max 3 levels).</small>
-          </span>
-        </label>
-
-        <button id="localListBtn" type="button">
-          <span id="localListLabel">List JS files</span>
-        </button>
-      </section>
-
-      <section class="card fonts-card" id="localFilesCard" hidden>
-        <div class="card-head">
-          <span>Local files</span>
-          <span class="meta" id="localFilesMeta">—</span>
-        </div>
-        <div class="js-toolbar">
-          <label class="js-selectall">
-            <input type="checkbox" id="localSelectAll" checked>
-            <span>Select all</span>
-          </label>
-          <span class="js-count" id="localCount">0 / 0</span>
-        </div>
-        <ul class="fonts-list" id="localFilesList"></ul>
-      </section>
-
-      <section class="card" id="localActionsCard" hidden>
-        <button id="localZipBtn" type="button">
-          <span id="localZipLabel">Download selected as ZIP</span>
-        </button>
-      </section>
-
+    <label class="toggle" for="allServerScan">
+      <input type="checkbox" id="allServerScan" checked>
+      <span class="switch"></span>
+      <span>Server-side scan <code>api/list-remote.js</code><small>One request from browser; server walks tree in parallel.</small></span>
+    </label>
+    <label class="toggle" for="allUseProxy">
+      <input type="checkbox" id="allUseProxy" checked>
+      <span class="switch"></span>
+      <span>Use API proxy <code>api/fetch.js</code><small>Only used when server scan is off.</small></span>
+    </label>
+    <button id="allListBtn" type="button"><span id="allListLabel">Load tree</span></button>
+  </section>
+  <section class="card nopad" id="allFilesCard" hidden>
+    <div class="card-head"><span>Assets</span><span class="meta" id="allFilesMeta">-</span></div>
+    <div class="tree-toolbar">
+      <label for="allSelectAll"><input type="checkbox" id="allSelectAll" checked> Select all</label>
+      <span id="allCount">0 / 0</span>
     </div>
+    <ul class="tree-list" id="allFilesList"></ul>
+  </section>
+  <section class="card" id="allActionsCard" hidden>
+    <button id="allZipBtn" type="button"><span id="allZipLabel">Download selected as ZIP</span></button>
+  </section>
+</div>
 
-  </main>
+<!-- TAB 3 -->
+<div class="panel" id="panel-js">
+  <section class="card">
+    <div class="field">
+      <label for="jsDir">Directory URL</label>
+      <input id="jsDir" type="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>
+    <label class="toggle" for="jsUseProxy">
+      <input type="checkbox" id="jsUseProxy" checked>
+      <span class="switch"></span>
+      <span>Use API proxy <code>api/fetch.js</code><small>Required for cross-origin directories.</small></span>
+    </label>
+    <button id="jsListBtn" type="button"><span id="jsListLabel">List JS files</span></button>
+  </section>
+  <section class="card nopad" id="jsFilesCard" hidden>
+    <div class="card-head"><span>JS files</span><span class="meta" id="jsFilesMeta">-</span></div>
+    <div class="tree-toolbar">
+      <label for="jsSelectAll"><input type="checkbox" id="jsSelectAll" checked> Select all</label>
+      <span id="jsCount">0 / 0</span>
+    </div>
+    <ul class="fonts-list" id="jsFilesList"></ul>
+  </section>
+  <section class="card" id="jsActionsCard" hidden>
+    <button id="jsZipBtn" type="button"><span id="jsZipLabel">Download selected as ZIP</span></button>
+  </section>
+</div>
 
-  <!-- ══════════ FOOTER ══════════ -->
-  <footer>
-    <span class="dot" id="dot" aria-hidden="true"></span>
-    <span id="status" role="status" aria-live="polite">Ready.</span>
-  </footer>
+<!-- TAB 4 -->
+<div class="panel" id="panel-local">
+  <section class="card">
+    <div class="field">
+      <label for="localDir">Path inside /public</label>
+      <input id="localDir" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>
+    <label class="toggle" for="localRecursive">
+      <input type="checkbox" id="localRecursive">
+      <span class="switch"></span>
+      <span>Include subdirectories<small>Reads nested folders under the path.</small></span>
+    </label>
+    <button id="localListBtn" type="button"><span id="localListLabel">List JS files</span></button>
+  </section>
+  <section class="card nopad" id="localFilesCard" hidden>
+    <div class="card-head"><span>Local files</span><span class="meta" id="localFilesMeta">-</span></div>
+    <div class="tree-toolbar">
+      <label for="localSelectAll"><input type="checkbox" id="localSelectAll" checked> Select all</label>
+      <span id="localCount">0 / 0</span>
+    </div>
+    <ul class="fonts-list" id="localFilesList"></ul>
+  </section>
+  <section class="card" id="localActionsCard" hidden>
+    <button id="localZipBtn" type="button"><span id="localZipLabel">Download selected as ZIP</span></button>
+  </section>
+</div>
 
+</main>
+
+<footer>
+  <span class="dot" id="dot"></span>
+  <span id="status" role="status" aria-live="polite">Ready.</span>
+</footer>
+
+<!-- ===== BLOCK 1: shared utilities ===== -->
 <script>
-(function () {
-  "use strict";
+var PROXY = "https://duotone-nine.vercel.app/api/fetch";
+var LIST_LOCAL = "https://duotone-nine.vercel.app/api/list-js";
+var LIST_REMOTE = "https://duotone-nine.vercel.app/api/list-remote";
 
-  const DEFAULT_CSS_URL   = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
-  const DEFAULT_CSS_NAME  = "duotone.min.css";
-  const DEFAULT_ALL_DIR   = "https://www.library.illinois.edu/assets/";
-  const DEFAULT_JS_DIR    = "https://www.library.illinois.edu/assets/js/";
-  const DEFAULT_LOCAL_DIR = "assets/js";
-  const PROXY_PATH        = "/api/fetch";
-  const LIST_LOCAL_PATH   = "/api/list-js";
-  const MAX_DEPTH         = 4;
+function $(id){ return document.getElementById(id); }
 
-  const $ = (id) => document.getElementById(id);
+function fmt(n){
+  if(!isFinite(n) || n < 0) return "-";
+  if(n < 1024) return n + " B";
+  if(n < 1048576) return (n/1024).toFixed(1) + " KB";
+  return (n/1048576).toFixed(2) + " MB";
+}
 
-  /* ── Shared elements ──────────────────────────────────── */
-  const progressCard = $("progressCard");
-  const bar          = $("bar");
-  const barFill      = $("barFill");
-  const pLeft        = $("pLeft");
-  const pRight       = $("pRight");
-  const sizeChip     = $("sizeChip");
-  const dot          = $("dot");
-  const statusEl     = $("status");
+function safeName(n){
+  return (n || "").replace(/[\\/:*?"<>|]/g, "_").replace(/^\.+/, "").trim() || "download";
+}
 
-  const encoder = new TextEncoder();
+function dl(blob, name){
+  var u = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = u; a.download = name; a.style.display = "none";
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ if(a.parentNode) a.parentNode.removeChild(a); URL.revokeObjectURL(u); }, 1000);
+}
 
-  /* ── Shared utilities ─────────────────────────────────── */
-  function fmtBytes(n) {
-    if (!Number.isFinite(n) || n < 0) return "—";
-    if (n < 1024) return n + " B";
-    if (n < 1048576) return (n / 1024).toFixed(1) + " KB";
-    return (n / 1048576).toFixed(2) + " MB";
-  }
+function fetchUrl(u, proxy){ return proxy ? PROXY + "?url=" + encodeURIComponent(u) : u; }
 
-  function sanitizeFilename(name) {
-    return (name || "")
-      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
-      .replace(/^\.+/, "")
-      .trim() || "download";
-  }
+function httpGet(u){
+  return fetch(u, { method: "GET", mode: "cors", credentials: "omit", cache: "no-cache" });
+}
+function getText(u){
+  return httpGet(u).then(function(r){
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    return r.text();
+  });
+}
+function getBlob(u){
+  return httpGet(u).then(function(r){
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    return r.blob();
+  });
+}
+function getJSON(u){
+  return httpGet(u).then(function(r){
+    return r.json().then(function(j){ return { ok: r.ok, status: r.status, data: j }; });
+  });
+}
 
-  function normalizeUrl(href) {
-    const u = new URL(href);
-    u.hash = "";
-    return u.href;
-  }
+var statusEl = $("status"), dotEl = $("dot"), chipEl = $("sizeChip");
+function setStatus(state, msg){
+  var c = "dot";
+  if(state === "ok") c += " ok";
+  else if(state === "err") c += " err";
+  else if(state === "load") c += " load";
+  dotEl.className = c;
+  statusEl.textContent = msg;
+}
 
-  function setState(state, message) {
-    dot.className = "dot" +
-      (state === "loading" ? " loading" :
-       state === "ok"      ? " ok"      :
-       state === "err"     ? " err"     : "");
-    statusEl.textContent = message;
-  }
-
-  function showProgress(show) { progressCard.hidden = !show; }
-
-  function resetProgress() {
-    bar.classList.remove("done", "fail", "indet");
-    barFill.style.width = "0%";
-    pLeft.textContent  = "0 B";
+var progressCard = $("progressCard"), barEl = $("bar"), barFill = $("barFill");
+var pLeft = $("pLeft"), pRight = $("pRight");
+function showProgress(on){ progressCard.hidden = !on; }
+function resetProgress(){
+  barEl.classList.remove("done", "fail", "indet");
+  barFill.style.width = "0%";
+  pLeft.textContent = "0 B";
+  pRight.textContent = "";
+}
+function setProgress(recv, total){
+  if(total > 0){
+    barEl.classList.remove("indet");
+    var pct = Math.min(100, (recv/total)*100);
+    barFill.style.width = pct.toFixed(1) + "%";
+    pRight.textContent = pct.toFixed(0) + "%";
+    pLeft.textContent = fmt(recv) + " / " + fmt(total);
+  } else {
+    barEl.classList.add("indet");
     pRight.textContent = "";
+    pLeft.textContent = recv ? fmt(recv) : "0 B";
   }
+}
 
-  function setProgress(received, total) {
-    if (total > 0) {
-      bar.classList.remove("indet");
-      const pct = Math.min(100, (received / total) * 100);
-      barFill.style.width = pct.toFixed(1) + "%";
-      pRight.textContent  = pct.toFixed(0) + "%";
-      pLeft.textContent   = fmtBytes(received) + " / " + fmtBytes(total);
-    } else {
-      bar.classList.add("indet");
-      pRight.textContent = "";
-      pLeft.textContent  = received ? fmtBytes(received) : "0 B";
-    }
-  }
-
-  function buildPreview(text) {
-    const src = (text || "").trim();
-    if (!src) return "// (empty file)";
-    const HEAD = 900, TAIL = 300;
-    if (src.length <= HEAD + TAIL) return src;
-    const omitted = src.length - HEAD - TAIL;
-    return (
-      src.slice(0, HEAD).trimEnd() +
-      "\n\n/* ⋯ " + omitted.toLocaleString() + " more characters omitted ⋯ */\n\n" +
-      src.slice(-TAIL).trimStart()
-    );
-  }
-
-  function triggerDownload(blob, filename) {
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = filename;
-    a.rel = "noopener";
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { a.remove(); URL.revokeObjectURL(objectUrl); }, 1500);
-  }
-
-  function buildFetchUrl(targetUrl, viaProxy) {
-    if (!viaProxy) return targetUrl;
-    return PROXY_PATH + "?url=" + encodeURIComponent(targetUrl);
-  }
-
-  async function fetchWithProgress(fetchUrl, onProgress) {
-    const response = await fetch(fetchUrl, {
-      method: "GET", mode: "cors", credentials: "omit",
-      cache: "no-cache", redirect: "follow"
-    });
-
-    if (!response.ok) {
-      let detail = "";
-      try {
-        const ct = response.headers.get("content-type") || "";
-        if (ct.includes("application/json")) {
-          const j = await response.json();
-          detail = j && (j.error || j.detail) ? " — " + (j.error || j.detail) : "";
-        }
-      } catch (_) {}
-      throw new Error("HTTP " + response.status + " " + response.statusText + detail);
-    }
-
-    const contentType = response.headers.get("Content-Type") || "";
-    const declared    = Number(response.headers.get("Content-Length")) || 0;
-
-    if (!response.body || typeof response.body.getReader !== "function") {
-      const blob = await response.blob();
-      onProgress(blob.size, blob.size);
-      return { blob, type: contentType };
-    }
-
-    const reader = response.body.getReader();
-    const chunks = [];
-    let received = 0;
-    onProgress(0, declared);
-
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      received += value.length;
-      onProgress(received, declared);
-    }
-
-    const blob = new Blob(chunks, { type: contentType || "application/octet-stream" });
-    return { blob, type: contentType };
-  }
-
-  /* ── Tab switching ───────────────────────────────────── */
-  const tabs   = document.querySelectorAll(".tab");
-  const panels = {
-    css:   $("panel-css"),
-    all:   $("panel-all"),
-    js:    $("panel-js"),
-    local: $("panel-local"),
-  };
-
-  tabs.forEach((t) => {
-    t.addEventListener("click", () => {
-      if (t.classList.contains("active")) return;
-      tabs.forEach((x) => {
-        const on = x === t;
-        x.classList.toggle("active", on);
-        x.setAttribute("aria-selected", on ? "true" : "false");
+function getWithProgress(u, onProgress){
+  return httpGet(u).then(function(r){
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    var ct = r.headers.get("Content-Type") || "";
+    var total = Number(r.headers.get("Content-Length")) || 0;
+    if(!r.body || typeof r.body.getReader !== "function"){
+      return r.blob().then(function(b){
+        onProgress(b.size, b.size);
+        return { blob: b, type: ct };
       });
-      Object.keys(panels).forEach((k) => {
-        panels[k].classList.toggle("active", k === t.dataset.panel);
+    }
+    var reader = r.body.getReader(), chunks = [], recv = 0;
+    onProgress(0, total);
+    function pump(){
+      return reader.read().then(function(x){
+        if(x.done){
+          var b = new Blob(chunks, { type: ct || "application/octet-stream" });
+          return { blob: b, type: ct };
+        }
+        chunks.push(x.value);
+        recv += x.value.length;
+        onProgress(recv, total);
+        return pump();
+      });
+    }
+    return pump();
+  });
+}
+
+function parseIndex(html, base){
+  var doc = new DOMParser().parseFromString(html, "text/html");
+  var links = doc.querySelectorAll("a[href]");
+  var out = [], seen = {}, baseObj = new URL(base);
+  Array.prototype.forEach.call(links, function(a){
+    var h = (a.getAttribute("href") || "").trim();
+    if(!h) return;
+    if(h.charAt(0) === "#" || h.charAt(0) === "?") return;
+    if(h === "/" || h === "./" || h === "../") return;
+    var u;
+    try { u = new URL(h, base); } catch(e){ return; }
+    if(u.origin !== baseObj.origin) return;
+    var isDir = u.pathname.slice(-1) === "/";
+    var clean = u.origin + u.pathname;
+    if(seen[clean]) return;
+    seen[clean] = 1;
+    var name = "";
+    try { name = decodeURIComponent(u.pathname.replace(/\/$/, "").split("/").pop() || ""); } catch(e){}
+    if(!name) return;
+    out.push({ url: clean, name: name, isDir: isDir });
+  });
+  return out;
+}
+
+function initTabs(){
+  var tabs = document.querySelectorAll(".tab");
+  var panels = { css: $("panel-css"), all: $("panel-all"), js: $("panel-js"), local: $("panel-local") };
+  Array.prototype.forEach.call(tabs, function(t){
+    t.addEventListener("click", function(){
+      Array.prototype.forEach.call(tabs, function(x){ x.classList.toggle("active", x === t); });
+      Object.keys(panels).forEach(function(k){
+        panels[k].classList.toggle("active", k === t.getAttribute("data-panel"));
       });
       showProgress(false);
-      setState("idle", "Ready.");
-      sizeChip.textContent = "idle";
     });
   });
+}
 
-  /* ── Generic list-view factory ───────────────────────── */
-  function makeFileList(cfg) {
-    const refs = {
-      card:        $(cfg.cardId),
-      list:        $(cfg.listId),
-      meta:        $(cfg.metaId),
-      selectAll:   $(cfg.selectAllId),
-      count:       $(cfg.countId),
-      actionsCard: $(cfg.actionsCardId),
-    };
-
-    const api = {
-      files: [],
-      refs,
-
-      render(items) {
-        refs.list.textContent = "";
-        api.files = items.map((f) => ({ ...f, checked: true }));
-
-        for (const f of api.files) {
-          const li = document.createElement("li");
-          li.title = f.url || f.path || f.basename || f.name;
-
-          const cb = document.createElement("input");
-          cb.type = "checkbox";
-          cb.checked = true;
-          cb.addEventListener("change", () => {
-            f.checked = cb.checked;
-            api.updateCount();
-          });
-
-          const d = document.createElement("span");
-          d.className = "fdot" + (f.isDir ? " dir" : "");
-
-          const n = document.createElement("span");
-          n.className = "fname" + (f.isDir ? " dir" : "");
-          n.textContent = f.isDir ? "📁 " + f.basename : f.basename;
-
-          const s = document.createElement("span");
-          s.className = "fsize";
-          s.textContent = f.isDir
-            ? "dir"
-            : (typeof f.size === "number" && f.size > 0 ? fmtBytes(f.size) : "—");
-
-          li.append(cb, d, n, s);
-          refs.list.appendChild(li);
-          f._el = { cb, d, s };
-        }
-
-        refs.card.hidden        = false;
-        refs.actionsCard.hidden = false;
-
-        const fileCount = api.files.filter((f) => !f.isDir).length;
-        const dirCount  = api.files.filter((f) => f.isDir).length;
-        refs.meta.textContent = fileCount + " file" + (fileCount === 1 ? "" : "s") +
-                                (dirCount ? " · " + dirCount + " dir" + (dirCount === 1 ? "" : "s") : "");
-
-        refs.selectAll.checked  = true;
-        refs.selectAll.indeterminate = false;
-        api.updateCount();
-      },
-
-      updateCount() {
-        const filesOnly = api.files.filter((f) => !f.isDir);
-        const sel = filesOnly.filter((f) => f.checked).length;
-        refs.count.textContent   = sel + " / " + filesOnly.length;
-        refs.selectAll.checked   = sel > 0 && sel === filesOnly.length;
-        refs.selectAll.indeterminate = sel > 0 && sel < filesOnly.length;
-      },
-
-      updateRow(f, state, size) {
-        if (!f._el) return;
-        f._el.d.className = "fdot" + (f.isDir ? " dir" : "") + (state ? " " + state : "");
-        if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
-        else if (state === "err")     f._el.s.textContent = "failed";
-        else if (state === "loading") f._el.s.textContent = "…";
-      },
-
-      clear() {
-        refs.list.textContent = "";
-        refs.card.hidden = true;
-        refs.actionsCard.hidden = true;
-        api.files = [];
-      },
-
-      selected() {
-        return api.files.filter((f) => f.checked && !f.isDir);
-      },
-    };
-
-    refs.selectAll.addEventListener("change", () => {
-      const on = refs.selectAll.checked;
-      for (const f of api.files) {
-        if (f.isDir) continue;
-        f.checked = on;
-        if (f._el) f._el.cb.checked = on;
-      }
-      api.updateCount();
-    });
-
-    return api;
+var CRC_TABLE = (function(){
+  var t = new Uint32Array(256);
+  for(var n = 0; n < 256; n++){
+    var c = n;
+    for(var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
   }
-
-  /* ── Shared index-HTML parser ────────────────────────── */
-  function parseIndexHtml(html, baseUrl) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const links = doc.querySelectorAll("a[href]");
-    const seen = new Set();
-    const entries = [];
-
-    const baseObj = new URL(baseUrl);
-
-    for (const a of links) {
-      const href = (a.getAttribute("href") || "").trim();
-      if (!href) continue;
-      if (href.startsWith("#") || href.startsWith("?")) continue;
-      if (href === "/" || href === "./" || href === "../") continue;
-      if (/^\?/.test(href)) continue;
-
-      let resolved;
-      try { resolved = new URL(href, baseUrl); }
-      catch { continue; }
-
-      if (resolved.origin !== baseObj.origin) continue;
-
-      const isDir = resolved.pathname.endsWith("/");
-      const clean = resolved.origin + resolved.pathname;
-      if (seen.has(clean)) continue;
-      seen.add(clean);
-
-      let basename;
-      try {
-        const parts = resolved.pathname.replace(/\/$/, "").split("/");
-        basename = decodeURIComponent(parts.pop() || "");
-      } catch { basename = ""; }
-      if (!basename) continue;
-
-      entries.push({ url: clean, basename, isDir });
-    }
-    return entries;
-  }
-
-  /* ══════════════════════════════════════════════════════
-     TAB 1 — CSS + Fonts
-     ══════════════════════════════════════════════════════ */
-  const urlInput    = $("url");
-  const fnameInput  = $("fname");
-  const useProxy    = $("useProxy");
-  const bundleFonts = $("bundleFonts");
-  const goBtn       = $("go");
-  const btnLabel    = $("btnLabel");
-  const fontsCard   = $("fontsCard");
-  const fontsList   = $("fontsList");
-  const fontsMeta   = $("fontsMeta");
-  const previewEl   = $("preview");
-  const metaEl      = $("meta");
-
-  urlInput.value   = DEFAULT_CSS_URL;
-  fnameInput.value = DEFAULT_CSS_NAME;
-
-  let fnameTouched = false;
-  fnameInput.addEventListener("input", () => { fnameTouched = true; });
-  urlInput.addEventListener("input", () => {
-    if (!fnameTouched) {
-      try {
-        const u = new URL(urlInput.value.trim());
-        const seg = u.pathname.split("/").filter(Boolean).pop();
-        fnameInput.value = seg ? decodeURIComponent(seg) : "download.css";
-      } catch {}
-    }
+  return t;
+})();
+function crc32(b){
+  var c = 0xFFFFFFFF;
+  for(var i = 0; i < b.length; i++) c = CRC_TABLE[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+var ENC = new TextEncoder();
+function makeZip(files){
+  var d = new Date();
+  var dd = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  var dt = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  var local = [], cent = [], off = 0;
+  files.forEach(function(f){
+    var nb = ENC.encode(f.name);
+    var data = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+    var crc = crc32(data), sz = data.length;
+    var lh = new Uint8Array(30 + nb.length), lv = new DataView(lh.buffer);
+    lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true);
+    lv.setUint16(6, 0, true); lv.setUint16(8, 0, true);
+    lv.setUint16(10, dt, true); lv.setUint16(12, dd, true);
+    lv.setUint32(14, crc, true); lv.setUint32(18, sz, true); lv.setUint32(22, sz, true);
+    lv.setUint16(26, nb.length, true); lv.setUint16(28, 0, true);
+    lh.set(nb, 30);
+    local.push(lh, data);
+    var cd = new Uint8Array(46 + nb.length), cv = new DataView(cd.buffer);
+    cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true); cv.setUint16(8, 0, true);
+    cv.setUint16(10, 0, true); cv.setUint16(12, dt, true); cv.setUint16(14, dd, true);
+    cv.setUint32(16, crc, true); cv.setUint32(20, sz, true); cv.setUint32(24, sz, true);
+    cv.setUint16(28, nb.length, true); cv.setUint16(30, 0, true);
+    cv.setUint16(32, 0, true); cv.setUint16(34, 0, true); cv.setUint16(36, 0, true);
+    cv.setUint32(38, 0, true); cv.setUint32(42, off, true);
+    cd.set(nb, 46);
+    cent.push(cd);
+    off += lh.length + data.length;
   });
+  var cdsz = 0;
+  cent.forEach(function(c){ cdsz += c.length; });
+  var eocd = new Uint8Array(22), ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054b50, true); ev.setUint16(4, 0, true); ev.setUint16(6, 0, true);
+  ev.setUint16(8, cent.length, true); ev.setUint16(10, cent.length, true);
+  ev.setUint32(12, cdsz, true); ev.setUint32(16, off, true); ev.setUint16(20, 0, true);
+  var all = local.concat(cent); all.push(eocd);
+  return new Blob(all, { type: "application/zip" });
+}
+console.log("[boot] block 1 ok");
+</script>
 
-  function busyCss(on) {
-    goBtn.disabled = urlInput.disabled = fnameInput.disabled =
-      useProxy.disabled = bundleFonts.disabled = on;
+<!-- ===== BLOCK 2: Tab 1 CSS + Fonts ===== -->
+<script>
+(function(){
+  "use strict";
 
-    const existing = goBtn.querySelector(".spinner");
-    if (on) {
-      if (!existing) {
-        const s = document.createElement("span");
-        s.className = "spinner";
-        goBtn.insertBefore(s, btnLabel);
-      }
-      btnLabel.textContent = "Fetching…";
-    } else {
-      if (existing) existing.remove();
-      btnLabel.textContent = "Fetch & Download";
-    }
-  }
+  var urlI = $("url"), fnameI = $("fname"), useProxy = $("useProxy"), bundleEl = $("bundleFonts");
+  var goBtn = $("go"), btnLabel = $("btnLabel");
+  var fontsCard = $("fontsCard"), fontsList = $("fontsList"), fontsMeta = $("fontsMeta");
+  var previewEl = $("preview"), metaEl = $("meta");
 
-  const URL_RE = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/gi;
-  const FONT_EXT_RE = /\.(woff2?|ttf|otf|eot|svg)([?#].*)?$/i;
+  urlI.value = "https://www.library.illinois.edu/assets/fontawesome/css/duotone.min.css";
+  fnameI.value = "duotone.min.css";
 
-  function extractFontUrls(cssText, cssBaseUrl) {
-    const out = [];
-    const seen = new Set();
-    let m;
+  var URL_RE = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/gi;
+  var FONT_RE = /\.(woff2?|ttf|otf|eot|svg)([?#].*)?$/i;
+
+  function extractFonts(css, base){
+    var out = [], seen = {}, m;
     URL_RE.lastIndex = 0;
-    while ((m = URL_RE.exec(cssText)) !== null) {
-      const raw = (m[2] || "").trim();
-      if (!raw) continue;
-      if (raw.startsWith("data:") || raw.startsWith("#") || raw.startsWith("blob:")) continue;
-      if (!FONT_EXT_RE.test(raw)) continue;
-
-      let resolved;
-      try { resolved = normalizeUrl(new URL(raw, cssBaseUrl).href); }
-      catch { continue; }
-      if (seen.has(resolved)) continue;
-      seen.add(resolved);
-
-      let basename;
-      try {
-        const u = new URL(resolved);
-        basename = decodeURIComponent(u.pathname.split("/").pop() || "font.bin");
-      } catch { basename = "font.bin"; }
-
-      out.push({ raw, resolved, basename });
+    while((m = URL_RE.exec(css))){
+      var r = (m[2] || "").trim();
+      if(!r) continue;
+      if(r.indexOf("data:") === 0) continue;
+      if(r.charAt(0) === "#") continue;
+      if(r.indexOf("blob:") === 0) continue;
+      if(!FONT_RE.test(r)) continue;
+      var u;
+      try { u = new URL(r, base).href.replace(/#.*$/, ""); } catch(e){ continue; }
+      if(seen[u]) continue;
+      seen[u] = 1;
+      var n = "font.bin";
+      try { n = decodeURIComponent(new URL(u).pathname.split("/").pop() || "font.bin"); } catch(e){}
+      out.push({ url: u, name: n });
     }
-
-    const counts = new Map();
-    for (const f of out) {
-      const n = counts.get(f.basename) || 0;
-      counts.set(f.basename, n + 1);
-      if (n > 0) {
-        const d = f.basename.lastIndexOf(".");
-        f.zipName = d > 0
-          ? f.basename.slice(0, d) + "_" + n + f.basename.slice(d)
-          : f.basename + "_" + n;
+    var counts = {};
+    out.forEach(function(f){
+      var c = counts[f.name] || 0;
+      counts[f.name] = c + 1;
+      if(c > 0){
+        var d = f.name.lastIndexOf(".");
+        f.zipName = d > 0 ? f.name.slice(0, d) + "_" + c + f.name.slice(d) : f.name + "_" + c;
       } else {
-        f.zipName = f.basename;
+        f.zipName = f.name;
       }
       f.zipPath = "webfonts/" + f.zipName;
-    }
+    });
     return out;
   }
 
-  function rewriteCssUrls(cssText, cssBaseUrl, fontByUrl) {
+  function rewrite(css, base, map){
     URL_RE.lastIndex = 0;
-    return cssText.replace(URL_RE, (match, q, raw) => {
-      const trimmed = (raw || "").trim();
-      if (!trimmed) return match;
-      if (trimmed.startsWith("data:") || trimmed.startsWith("#") || trimmed.startsWith("blob:")) return match;
-      let resolved;
-      try { resolved = normalizeUrl(new URL(trimmed, cssBaseUrl).href); }
-      catch { return match; }
-      const f = fontByUrl.get(resolved);
-      if (!f || !f.data) return match;
+    return css.replace(URL_RE, function(m, q, r){
+      r = (r || "").trim();
+      if(!r) return m;
+      if(r.indexOf("data:") === 0) return m;
+      if(r.charAt(0) === "#") return m;
+      if(r.indexOf("blob:") === 0) return m;
+      var u;
+      try { u = new URL(r, base).href.replace(/#.*$/, ""); } catch(e){ return m; }
+      var f = map[u];
+      if(!f || !f.data) return m;
       return 'url("' + f.zipPath + '")';
     });
   }
 
-  function renderFonts(fonts) {
+  function renderFonts(fonts){
     fontsList.textContent = "";
-    for (const f of fonts) {
-      const li = document.createElement("li");
-      li.title = f.resolved;
-      const d = document.createElement("span"); d.className = "fdot";
-      const n = document.createElement("span"); n.className = "fname"; n.textContent = f.zipName;
-      const s = document.createElement("span"); s.className = "fsize"; s.textContent = "…";
-      li.append(d, n, s);
+    fonts.forEach(function(f){
+      var li = document.createElement("li");
+      li.className = "font-item";
+      var dot = document.createElement("span");
+      dot.className = "fdot";
+      var nm = document.createElement("span");
+      nm.className = "fname";
+      nm.textContent = f.zipName;
+      var sz = document.createElement("span");
+      sz.className = "fsize";
+      sz.textContent = "...";
+      li.appendChild(dot); li.appendChild(nm); li.appendChild(sz);
       fontsList.appendChild(li);
-      f._el = { d, s };
-    }
+      f._dot = dot;
+      f._sz = sz;
+    });
     fontsCard.hidden = false;
     fontsMeta.textContent = fonts.length + " found";
   }
 
-  function updateFontUi(f, state, size) {
-    if (!f._el) return;
-    f._el.d.className = "fdot" + (state ? " " + state : "");
-    if (typeof size === "number") f._el.s.textContent = fmtBytes(size);
-    else if (state === "err") f._el.s.textContent = "failed";
+  function updateRow(f, state, size){
+    if(f._dot) f._dot.className = "fdot" + (state ? " " + state : "");
+    if(typeof size === "number" && f._sz) f._sz.textContent = fmt(size);
+    else if(state === "err" && f._sz) f._sz.textContent = "failed";
   }
 
-  async function runCss() {
-    const rawUrl = urlInput.value.trim();
-    const name   = sanitizeFilename(fnameInput.value);
-    const proxy  = useProxy.checked;
-    const bundle = bundleFonts.checked;
-
-    let parsed;
-    try { parsed = new URL(rawUrl); }
-    catch { setState("err", "Invalid URL."); urlInput.focus(); return; }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      setState("err", "Only http(s) URLs are supported."); return;
+  function busy(on){
+    goBtn.disabled = urlI.disabled = fnameI.disabled = useProxy.disabled = bundleEl.disabled = on;
+    var s = goBtn.querySelector(".spinner");
+    if(on){
+      if(!s){
+        s = document.createElement("span");
+        s.className = "spinner";
+        goBtn.insertBefore(s, btnLabel);
+      }
+      btnLabel.textContent = "Fetching...";
+    } else {
+      if(s) s.parentNode.removeChild(s);
+      btnLabel.textContent = "Fetch & Download";
     }
+  }
 
-    busyCss(true);
-    setState("loading", (proxy ? "Proxying · " : "Direct · ") + parsed.hostname + "…");
+  function previewOf(text){
+    var s = (text || "").trim();
+    if(!s) return "// (empty)";
+    var H = 1200, T = 400;
+    if(s.length <= H + T) return s;
+    return s.slice(0, H).replace(/\s+$/, "") +
+      "\n\n/* ... " + (s.length - H - T) + " more chars ... */\n\n" +
+      s.slice(-T).replace(/^\s+/, "");
+  }
+
+  function run(){
+    var raw = urlI.value.trim();
+    var name = safeName(fnameI.value);
+    var proxy = useProxy.checked;
+    var bundle = bundleEl.checked;
+    var p;
+    try { p = new URL(raw); } catch(e){ setStatus("err", "Invalid URL"); return; }
+    if(p.protocol !== "http:" && p.protocol !== "https:"){ setStatus("err", "Only http(s)"); return; }
+
+    busy(1);
+    setStatus("load", (proxy ? "Proxying" : "Direct") + " - " + p.hostname);
     showProgress(true);
     resetProgress();
     fontsCard.hidden = true;
     fontsList.textContent = "";
-    metaEl.textContent = "—";
-    previewEl.textContent = "// Fetching CSS…";
+    metaEl.textContent = "-";
+    previewEl.textContent = "// fetching...";
 
-    try {
-      const cssFetchUrl = buildFetchUrl(rawUrl, proxy);
-      const { blob: cssBlob, type: cssType } = await fetchWithProgress(cssFetchUrl, setProgress);
-      const cssText = await cssBlob.text();
+    var cssBlob = null, cssText = "", cssType = "";
 
-      bar.classList.add("done");
-      barFill.style.width = "100%";
-      const shortCssType = (cssType || "text/css").split(";")[0];
-      metaEl.textContent = shortCssType + " · " + fmtBytes(cssBlob.size) + (proxy ? " · proxied" : "");
-      sizeChip.textContent = fmtBytes(cssBlob.size);
+    getWithProgress(fetchUrl(raw, proxy), setProgress)
+      .then(function(r){
+        cssBlob = r.blob;
+        cssType = r.type;
+        return r.blob.text();
+      })
+      .then(function(text){
+        cssText = text;
+        barEl.classList.remove("indet");
+        barEl.classList.add("done");
+        barFill.style.width = "100%";
+        var t = (cssType || "text/css").split(";")[0];
+        metaEl.textContent = t + " - " + fmt(cssBlob.size) + (proxy ? " - proxied" : "");
+        chipEl.textContent = fmt(cssBlob.size);
 
-      if (!bundle) {
-        triggerDownload(cssBlob, name);
-        previewEl.textContent = buildPreview(cssText);
-        setState("ok", "Saved “" + name + "” (" + fmtBytes(cssBlob.size) + ")" + (proxy ? " via proxy" : ""));
-        return;
-      }
-
-      const fonts = extractFontUrls(cssText, rawUrl);
-
-      if (fonts.length === 0) {
-        triggerDownload(cssBlob, name);
-        previewEl.textContent = buildPreview(cssText);
-        setState("ok", "No fonts found — saved CSS only (" + fmtBytes(cssBlob.size) + ")");
-        return;
-      }
-
-      renderFonts(fonts);
-      setState("loading", fonts.length + " font" + (fonts.length === 1 ? "" : "s") + " to fetch…");
-
-      const byUrl = new Map();
-      for (const f of fonts) byUrl.set(f.resolved, f);
-
-      let okCount = 0, failCount = 0;
-
-      for (let i = 0; i < fonts.length; i++) {
-        const f = fonts[i];
-        updateFontUi(f, "loading");
-        setState("loading", "Font " + (i + 1) + "/" + fonts.length + " · " + f.zipName);
-        resetProgress();
-        bar.classList.add("indet");
-        try {
-          const { blob: fb } = await fetchWithProgress(buildFetchUrl(f.resolved, proxy), setProgress);
-          const data = new Uint8Array(await fb.arrayBuffer());
-          f.data = data; okCount++;
-          bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
-          updateFontUi(f, "ok", data.length);
-        } catch (err) {
-          f.error = err && err.message ? err.message : String(err);
-          failCount++;
-          bar.classList.remove("indet"); bar.classList.add("fail");
-          updateFontUi(f, "err");
+        if(!bundle){
+          dl(cssBlob, name);
+          previewEl.textContent = previewOf(cssText);
+          setStatus("ok", "Saved " + name + " (" + fmt(cssBlob.size) + ")");
+          return null;
         }
-      }
 
-      const rewritten = rewriteCssUrls(cssText, rawUrl, byUrl);
-      const cssBytes  = encoder.encode(rewritten);
+        var fonts = extractFonts(cssText, raw);
+        if(!fonts.length){
+          dl(cssBlob, name);
+          previewEl.textContent = previewOf(cssText);
+          setStatus("ok", "No fonts - saved CSS only");
+          return null;
+        }
 
-      const zipFiles = [{ name, data: cssBytes }];
-      for (const f of fonts) if (f.data) zipFiles.push({ name: f.zipPath, data: f.data });
+        renderFonts(fonts);
+        setStatus("load", fonts.length + " fonts to fetch");
 
-      const zipBlob = buildZip(zipFiles);
-      const zipName = name.replace(/\.[^.]*$/, "") + ".zip";
-      triggerDownload(zipBlob, zipName);
+        var map = {};
+        fonts.forEach(function(f){ map[f.url] = f; });
+        var ok = 0, fail = 0;
+        var chain = Promise.resolve();
 
-      fontsMeta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
-      previewEl.textContent = buildPreview(rewritten);
-      metaEl.textContent =
-        shortCssType + " + " + okCount + " font" + (okCount === 1 ? "" : "s") +
-        " · " + fmtBytes(zipBlob.size);
-      sizeChip.textContent = fmtBytes(zipBlob.size);
-
-      setState(
-        failCount && !okCount ? "err" : "ok",
-        "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
-        (failCount ? " · " + failCount + " font" + (failCount === 1 ? "" : "s") + " failed" : "")
-      );
-    } catch (err) {
-      console.error(err);
-      bar.classList.remove("indet", "done"); bar.classList.add("fail");
-      barFill.style.width = "100%"; pRight.textContent = "";
-      sizeChip.textContent = "failed";
-      let msg = "Failed: " + (err && err.message ? err.message : String(err));
-      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
-        msg += " — likely CORS. Enable the API proxy and try again.";
-      } else if (proxy && /HTTP 5\d\d/.test(msg)) {
-        msg += " — check the /api/fetch deployment logs.";
-      }
-      previewEl.textContent = "// " + msg;
-      metaEl.textContent = "error";
-      setState("err", msg);
-    } finally {
-      busyCss(false);
-    }
-  }
-
-  /* ══════════════════════════════════════════════════════
-     TAB 2 — All Assets
-     ══════════════════════════════════════════════════════ */
-  const allDirInput    = $("allDir");
-  const allRecursive   = $("allRecursive");
-  const allUseProxy    = $("allUseProxy");
-  const allListBtn     = $("allListBtn");
-  const allListLabel   = $("allListLabel");
-  const allZipBtn      = $("allZipBtn");
-
-  allDirInput.value = DEFAULT_ALL_DIR;
-
-  const allList = makeFileList({
-    cardId: "allFilesCard", listId: "allFilesList", metaId: "allFilesMeta",
-    selectAllId: "allSelectAll", countId: "allCount", actionsCardId: "allActionsCard",
-  });
-
-  function busyAll(on) {
-    allListBtn.disabled = allZipBtn.disabled =
-      allDirInput.disabled = allRecursive.disabled = allUseProxy.disabled = on;
-    allList.refs.selectAll.disabled = on;
-
-    const existing = allListBtn.querySelector(".spinner");
-    if (on) {
-      if (!existing) {
-        const s = document.createElement("span");
-        s.className = "spinner";
-        allListBtn.insertBefore(s, allListLabel);
-      }
-      allListLabel.textContent = "Working…";
-    } else {
-      if (existing) existing.remove();
-      allListLabel.textContent = "List all files";
-    }
-  }
-
-  async function listAllAssets(rootUrl, viaProxy, recursive) {
-    const root = new URL(rootUrl);
-    if (!root.pathname.endsWith("/")) root.pathname += "/";
-
-    const rootPath = root.pathname;
-    const queue = [{ url: root.href, depth: 0 }];
-    const visited = new Set([root.href]);
-    const files = [];
-    let dirCount = 0;
-
-    while (queue.length) {
-      const { url, depth } = queue.shift();
-
-      setState("loading",
-        "Scanning " + new URL(url).pathname +
-        (depth ? " (depth " + depth + ")" : "") + "…");
-
-      const res = await fetch(buildFetchUrl(url, viaProxy), {
-        method: "GET", mode: "cors", credentials: "omit",
-        cache: "no-cache", redirect: "follow"
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status + " @ " + url);
-      const ct = res.headers.get("content-type") || "";
-      const html = await res.text();
-
-      if (!/html/i.test(ct) && !/<a\s/i.test(html)) continue;
-
-      const entries = parseIndexHtml(html, url);
-
-      for (const e of entries) {
-        const u = new URL(e.url);
-        if (!u.pathname.startsWith(rootPath)) continue;
-
-        let rel = u.pathname.slice(rootPath.length);
-        try { rel = decodeURIComponent(rel); } catch {}
-        if (rel.endsWith("/")) rel = rel.slice(0, -1);
-
-        if (e.isDir) {
-          dirCount++;
-          if (recursive && depth + 1 <= MAX_DEPTH && !visited.has(e.url)) {
-            visited.add(e.url);
-            queue.push({ url: e.url, depth: depth + 1 });
-          }
-        } else {
-          files.push({
-            url: e.url,
-            basename: e.basename,
-            relPath: rel,
-            isDir: false,
+        fonts.forEach(function(f, i){
+          chain = chain.then(function(){
+            updateRow(f, "loading");
+            setStatus("load", "Font " + (i + 1) + "/" + fonts.length + " - " + f.zipName);
+            resetProgress();
+            barEl.classList.add("indet");
+            return getWithProgress(fetchUrl(f.url, proxy), setProgress)
+              .then(function(fr){ return fr.blob.arrayBuffer(); })
+              .then(function(buf){
+                f.data = new Uint8Array(buf);
+                ok++;
+                barEl.classList.remove("indet");
+                barEl.classList.add("done");
+                barFill.style.width = "100%";
+                updateRow(f, "ok", f.data.length);
+              })
+              .catch(function(){
+                fail++;
+                barEl.classList.remove("indet", "done");
+                barEl.classList.add("fail");
+                updateRow(f, "err");
+              });
           });
-        }
-      }
-    }
+        });
 
-    files.sort((a, b) => a.relPath.localeCompare(b.relPath));
-    return { files, dirs: dirCount };
+        return chain.then(function(){
+          var rewritten = rewrite(cssText, raw, map);
+          var zipFiles = [{ name: name, data: ENC.encode(rewritten) }];
+          fonts.forEach(function(f){
+            if(f.data) zipFiles.push({ name: f.zipPath, data: f.data });
+          });
+          var z = makeZip(zipFiles);
+          var zname = name.replace(/\.[^.]*$/, "") + ".zip";
+          dl(z, zname);
+          fontsMeta.textContent = ok + " ok" + (fail ? " - " + fail + " failed" : "");
+          previewEl.textContent = previewOf(rewritten);
+          metaEl.textContent = t + " + " + ok + " fonts - " + fmt(z.size);
+          chipEl.textContent = fmt(z.size);
+          setStatus(ok && !fail ? "ok" : (fail && !ok ? "err" : "ok"),
+            "ZIP " + fmt(z.size) + " - " + ok + " ok, " + fail + " failed");
+          return null;
+        });
+      })
+      .catch(function(err){
+        barEl.classList.remove("indet", "done");
+        barEl.classList.add("fail");
+        barFill.style.width = "100%";
+        pRight.textContent = "";
+        var msg = "Failed: " + (err && err.message ? err.message : String(err));
+        if(!proxy && err instanceof TypeError && /failed to fetch/i.test(err.message || "")){
+          msg += " - likely CORS";
+        }
+        previewEl.textContent = "// " + msg;
+        metaEl.textContent = "error";
+        setStatus("err", msg);
+      })
+      .then(function(){ busy(0); });
   }
 
-  async function runAllList() {
-    const rawUrl  = allDirInput.value.trim();
-    const proxy   = allUseProxy.checked;
-    const recurse = allRecursive.checked;
+  goBtn.addEventListener("click", run);
+  urlI.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); run(); } });
+  fnameI.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); run(); } });
+})();
+console.log("[boot] block 2 ok");
+</script>
 
-    let parsed;
-    try { parsed = new URL(rawUrl); }
-    catch { setState("err", "Invalid directory URL."); allDirInput.focus(); return; }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      setState("err", "Only http(s) URLs are supported."); return;
+<!-- ===== BLOCK 3: Tab 2 All Assets tree ===== -->
+<script>
+(function(){
+  "use strict";
+
+  var dirI = $("allDir"), srvToggle = $("allServerScan"), proxyToggle = $("allUseProxy");
+  var btn = $("allListBtn"), lbl = $("allListLabel"), zipBtn = $("allZipBtn"), zipLabel = $("allZipLabel");
+  var card = $("allFilesCard"), list = $("allFilesList"), metaEl = $("allFilesMeta");
+  var allCb = $("allSelectAll"), countEl = $("allCount"), actionsCard = $("allActionsCard");
+
+  dirI.value = "https://www.library.illinois.edu/assets/";
+  var tree = null;
+
+  function countFiles(n){
+    if(n.type === "file") return 1;
+    var s = 0;
+    n.children.forEach(function(c){ s += countFiles(c); });
+    return s;
+  }
+  function countDirs(n){
+    if(n.type === "file") return 0;
+    var s = 0;
+    n.children.forEach(function(c){ s += (c.type === "dir" ? 1 : 0) + countDirs(c); });
+    return s;
+  }
+  function setChecked(n, v){
+    if(n.type === "file"){
+      n.checked = v;
+      if(n._cb) n._cb.checked = v;
+    } else {
+      n.children.forEach(function(c){ setChecked(c, v); });
+      if(n._cb && n !== tree){
+        n._cb.checked = v;
+        n._cb.indeterminate = false;
+      }
+    }
+  }
+  function refreshFolder(n){
+    if(n.type === "file") return { total: 0, checked: 0 };
+    var total = 0, checked = 0;
+    n.children.forEach(function(c){
+      if(c.type === "file"){
+        total++;
+        if(c.checked) checked++;
+      } else {
+        var r = refreshFolder(c);
+        total += r.total;
+        checked += r.checked;
+      }
+    });
+    if(n._cb && n !== tree){
+      n._cb.checked = total > 0 && checked === total;
+      n._cb.indeterminate = checked > 0 && checked < total;
+    }
+    return { total: total, checked: checked };
+  }
+  function collect(n, out){
+    if(n.type === "file"){
+      if(n.checked) out.push(n);
+      return;
+    }
+    n.children.forEach(function(c){ collect(c, out); });
+  }
+  function updateCount(){
+    if(!tree) return;
+    var s = [];
+    collect(tree, s);
+    var t = countFiles(tree);
+    countEl.textContent = s.length + " / " + t;
+    allCb.checked = s.length > 0 && s.length === t;
+    allCb.indeterminate = s.length > 0 && s.length < t;
+  }
+  function buildTree(entries){
+    var root = { type: "dir", name: "", path: "", children: [], expanded: true };
+    var idx = {};
+    idx[""] = root;
+    function ensure(p, name){
+      if(idx[p]) return idx[p];
+      var i = p.lastIndexOf("/");
+      var par = i >= 0 ? p.slice(0, i) : "";
+      var nm = name || p.slice(i + 1);
+      var parent = ensure(par, "");
+      var node = { type: "dir", name: nm, path: p, children: [], expanded: false };
+      parent.children.push(node);
+      idx[p] = node;
+      return node;
+    }
+    entries.forEach(function(e){ if(e.isDir) ensure(e.relPath, e.name); });
+    entries.forEach(function(e){
+      if(e.isDir) return;
+      var i = e.relPath.lastIndexOf("/");
+      var par = i >= 0 ? e.relPath.slice(0, i) : "";
+      var parent = ensure(par, "");
+      parent.children.push({
+        type: "file", name: e.name, url: e.url, path: e.relPath, checked: true
+      });
+    });
+    function sort(n){
+      n.children.sort(function(a, b){
+        if(a.type !== b.type) return a.type === "dir" ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
+      n.children.forEach(sort);
+    }
+    sort(root);
+    return root;
+  }
+
+  function renderNode(node){
+    var li = document.createElement("li");
+    li.className = "tree-item";
+    var row = document.createElement("div");
+    row.className = "tree-row" + (node.type === "dir" ? " dir" : "");
+
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = true;
+
+    if(node.type === "file"){
+      cb.checked = node.checked;
+      cb.addEventListener("change", function(){
+        node.checked = cb.checked;
+        refreshFolder(tree);
+        updateCount();
+      });
+    } else {
+      cb.addEventListener("change", function(){
+        setChecked(node, cb.checked);
+        refreshFolder(tree);
+        updateCount();
+      });
     }
 
-    busyAll(true);
-    setState("loading", "Listing " + parsed.hostname + "…");
+    var tri = document.createElement("span");
+    tri.className = "tree-tri";
+
+    var dot = document.createElement("span");
+    dot.className = "tree-dot" + (node.type === "dir" ? " dir" : "");
+
+    var nm = document.createElement("span");
+    nm.className = "tree-name" + (node.type === "dir" ? " dir" : "");
+    nm.textContent = node.type === "dir" ? node.name + "/" : node.name;
+
+    var sz = document.createElement("span");
+    sz.className = "tree-size";
+    sz.textContent = node.type === "dir" ? "(" + countFiles(node) + ")" : "-";
+
+    row.appendChild(cb);
+    row.appendChild(tri);
+    row.appendChild(dot);
+    row.appendChild(nm);
+    row.appendChild(sz);
+    li.appendChild(row);
+
+    node._cb = cb;
+    node._dot = dot;
+    node._sz = sz;
+
+    if(node.type === "dir" && node.children.length){
+      tri.textContent = node.expanded ? "v" : ">";
+      var sub = document.createElement("ul");
+      sub.className = "tree-children" + (node.expanded ? " open" : "");
+      node.children.forEach(function(c){ sub.appendChild(renderNode(c)); });
+      li.appendChild(sub);
+      node._sub = sub;
+      node._tri = tri;
+
+      row.addEventListener("click", function(ev){
+        var t = ev.target;
+        if(t && t.tagName === "INPUT") return;
+        node.expanded = !node.expanded;
+        tri.textContent = node.expanded ? "v" : ">";
+        if(node.expanded) sub.classList.add("open");
+        else sub.classList.remove("open");
+      });
+    } else if(node.type === "dir"){
+      tri.textContent = ".";
+    }
+
+    return li;
+  }
+
+  function renderTree(){
+    list.textContent = "";
+    if(!tree) return;
+    var ul = document.createElement("ul");
+    ul.className = "tree-list";
+    tree.children.forEach(function(c){ ul.appendChild(renderNode(c)); });
+    list.appendChild(ul);
+    updateCount();
+  }
+
+  function busy(on){
+    btn.disabled = zipBtn.disabled = dirI.disabled = srvToggle.disabled = proxyToggle.disabled = allCb.disabled = on;
+    var s = btn.querySelector(".spinner");
+    if(on){
+      if(!s){
+        s = document.createElement("span");
+        s.className = "spinner";
+        btn.insertBefore(s, lbl);
+      }
+      lbl.textContent = "Working...";
+    } else {
+      if(s) s.parentNode.removeChild(s);
+      lbl.textContent = "Load tree";
+    }
+  }
+
+  function finalize(entries, stats){
+    if(!entries.length){
+      setStatus("err", "Nothing found");
+      busy(0);
+      return;
+    }
+    tree = buildTree(entries);
+    renderTree();
+    card.hidden = false;
+    actionsCard.hidden = false;
+    var nf = countFiles(tree);
+    var nd = countDirs(tree);
+    metaEl.textContent = nf + " files - " + nd + " dirs";
+    chipEl.textContent = nf + " files";
+    barEl.classList.remove("indet");
+    barEl.classList.add("done");
+    barFill.style.width = "100%";
+    pLeft.textContent = nf + " files";
+    pRight.textContent = "";
+    var msg = "Loaded " + nf + " files / " + nd + " dirs";
+    if(stats && stats.scanned) msg += " (" + stats.scanned + " reqs)";
+    if(stats && stats.aborted) msg += " - partial";
+    setStatus("ok", msg);
+    busy(0);
+  }
+
+  function runServer(rawUrl){
+    setStatus("load", "Server scanning...");
+    barEl.classList.add("indet");
+    getJSON(LIST_REMOTE + "?url=" + encodeURIComponent(rawUrl)).then(function(r){
+      if(!r.ok) throw new Error((r.data && r.data.error) || "HTTP " + r.status);
+      var entries = (r.data.files || []).map(function(f){
+        return { isDir: false, url: f.url, name: f.name, relPath: f.relPath };
+      });
+      finalize(entries, r.data.stats);
+    }).catch(function(e){
+      barEl.classList.remove("indet");
+      barEl.classList.add("fail");
+      setStatus("err", "Failed: " + e.message);
+      busy(0);
+    });
+  }
+
+  function runClient(rawUrl){
+    var root = new URL(rawUrl);
+    if(root.pathname.slice(-1) !== "/") root.pathname += "/";
+    var rp = root.pathname;
+    var queue = [root.href], seen = {}, entries = [];
+    seen[root.href] = 1;
+    function step(){
+      if(!queue.length){ finalize(entries, null); return; }
+      var u = queue.shift();
+      setStatus("load", "Scanning " + new URL(u).pathname + " (" + entries.length + ")");
+      getText(fetchUrl(u, proxyToggle.checked)).then(function(html){
+        if(!/<a\s/i.test(html)){ step(); return; }
+        parseIndex(html, u).forEach(function(e){
+          var up = new URL(e.url);
+          if(up.pathname.indexOf(rp) !== 0) return;
+          var rel = up.pathname.slice(rp.length);
+          try { rel = decodeURIComponent(rel); } catch(x){}
+          if(rel.slice(-1) === "/") rel = rel.slice(0, -1);
+          if(!rel) return;
+          entries.push({ isDir: e.isDir, url: e.url, name: e.name, relPath: rel });
+          if(e.isDir && !seen[e.url]){
+            seen[e.url] = 1;
+            queue.push(e.url);
+          }
+        });
+        step();
+      }).catch(function(e){
+        setStatus("err", "Failed: " + e.message);
+        busy(0);
+      });
+    }
+    step();
+  }
+
+  function run(){
+    var u = dirI.value.trim(), p;
+    try { p = new URL(u); } catch(e){ setStatus("err", "Invalid URL"); return; }
+    if(p.protocol !== "http:" && p.protocol !== "https:"){ setStatus("err", "Only http(s)"); return; }
+    busy(1);
     showProgress(true);
     resetProgress();
-    bar.classList.add("indet");
-    allList.clear();
+    card.hidden = true;
+    actionsCard.hidden = true;
+    list.textContent = "";
+    tree = null;
+    if(srvToggle.checked) runServer(u);
+    else runClient(u);
+  }
 
-    try {
-      const { files, dirs } = await listAllAssets(rawUrl, proxy, recurse);
+  function doZip(){
+    if(!tree){ setStatus("err", "Load tree first"); return; }
+    var sel = [];
+    collect(tree, sel);
+    if(!sel.length){ setStatus("err", "None selected"); return; }
+    busy(1);
+    setStatus("load", "Downloading " + sel.length + " files");
+    showProgress(true);
+    var files = [], i = 0, ok = 0, fail = 0;
+    var proxy = proxyToggle.checked;
+    function next(){
+      if(i >= sel.length){
+        if(!files.length){ setStatus("err", "All downloads failed"); busy(0); return; }
+        var z = makeZip(files);
+        var parts = new URL(dirI.value.trim()).pathname.split("/").filter(Boolean);
+        var base = parts.length ? parts[parts.length - 1] : "assets";
+        dl(z, safeName(base) + ".zip");
+        chipEl.textContent = fmt(z.size);
+        setStatus(ok ? "ok" : "err", "ZIP " + fmt(z.size) + " - " + ok + " ok, " + fail + " failed");
+        busy(0);
+        return;
+      }
+      var f = sel[i];
+      setStatus("load", "File " + (i + 1) + "/" + sel.length + " - " + f.path);
+      resetProgress();
+      barEl.classList.add("indet");
+      if(f._dot) f._dot.className = "tree-dot loading";
+      getWithProgress(fetchUrl(f.url, proxy), setProgress).then(function(r){
+        return r.blob.arrayBuffer().then(function(buf){
+          var data = new Uint8Array(buf);
+          files.push({ name: f.path || f.name, data: data });
+          ok++;
+          barEl.classList.remove("indet");
+          barEl.classList.add("done");
+          barFill.style.width = "100%";
+          if(f._dot) f._dot.className = "tree-dot ok";
+          if(f._sz) f._sz.textContent = fmt(data.length);
+        });
+      }).catch(function(){
+        fail++;
+        barEl.classList.remove("indet", "done");
+        barEl.classList.add("fail");
+        if(f._dot) f._dot.className = "tree-dot err";
+      }).then(function(){ i++; next(); });
+    }
+    next();
+  }
 
-      bar.classList.remove("indet"); bar.classList.add("done");
+  btn.addEventListener("click", run);
+  zipBtn.addEventListener("click", doZip);
+  dirI.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); run(); } });
+  allCb.addEventListener("change", function(){
+    if(!tree) return;
+    setChecked(tree, allCb.checked);
+    tree.children.forEach(function(c){
+      if(c._cb){ c._cb.checked = allCb.checked; c._cb.indeterminate = false; }
+    });
+    updateCount();
+  });
+})();
+console.log("[boot] block 3 ok");
+</script>
+
+<!-- ===== BLOCK 4: Tab 3 Remote JS ===== -->
+<script>
+(function(){
+  "use strict";
+
+  var dirI = $("jsDir"), proxyToggle = $("jsUseProxy");
+  var btn = $("jsListBtn"), lbl = $("jsListLabel"), zipBtn = $("jsZipBtn");
+  var card = $("jsFilesCard"), list = $("jsFilesList"), metaEl = $("jsFilesMeta");
+  var allCb = $("jsSelectAll"), countEl = $("jsCount"), actionsCard = $("jsActionsCard");
+
+  dirI.value = "https://www.library.illinois.edu/assets/js/";
+  var items = [];
+
+  function busy(on){
+    btn.disabled = zipBtn.disabled = dirI.disabled = proxyToggle.disabled = allCb.disabled = on;
+    var s = btn.querySelector(".spinner");
+    if(on){
+      if(!s){
+        s = document.createElement("span");
+        s.className = "spinner";
+        btn.insertBefore(s, lbl);
+      }
+      lbl.textContent = "Working...";
+    } else {
+      if(s) s.parentNode.removeChild(s);
+      lbl.textContent = "List JS files";
+    }
+  }
+
+  function render(files){
+    list.textContent = "";
+    items = files.map(function(f){ f.checked = true; return f; });
+    items.forEach(function(f){
+      var li = document.createElement("li");
+      li.className = "font-item";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = true;
+      cb.addEventListener("change", function(){ f.checked = cb.checked; upd(); });
+      var nm = document.createElement("span");
+      nm.className = "fname";
+      nm.textContent = f.name;
+      li.appendChild(cb); li.appendChild(nm);
+      list.appendChild(li);
+      f._cb = cb;
+    });
+    card.hidden = false;
+    actionsCard.hidden = false;
+    upd();
+  }
+
+  function upd(){
+    var s = items.filter(function(f){ return f.checked; }).length;
+    countEl.textContent = s + " / " + items.length;
+    allCb.checked = s > 0 && s === items.length;
+    allCb.indeterminate = s > 0 && s < items.length;
+  }
+
+  function run(){
+    var u = dirI.value.trim(), p;
+    try { p = new URL(u); } catch(e){ setStatus("err", "Invalid URL"); return; }
+    if(p.protocol !== "http:" && p.protocol !== "https:"){ setStatus("err", "Only http(s)"); return; }
+
+    busy(1);
+    showProgress(true);
+    resetProgress();
+    barEl.classList.add("indet");
+    card.hidden = true;
+    actionsCard.hidden = true;
+    list.textContent = "";
+    items = [];
+    setStatus("load", "Listing " + p.hostname);
+
+    getText(fetchUrl(u, proxyToggle.checked)).then(function(html){
+      if(!/<a\s/i.test(html)) throw new Error("Not a directory index");
+      var entries = parseIndex(html, u);
+      var files = [];
+      entries.forEach(function(e){
+        if(e.isDir) return;
+        if(!/\.js(\?|#|$)/i.test(e.url)) return;
+        files.push({ url: e.url, name: e.name });
+      });
+      files.sort(function(a, b){ return a.name.localeCompare(b.name); });
+
+      barEl.classList.remove("indet");
+      barEl.classList.add("done");
       barFill.style.width = "100%";
-      pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
+      pLeft.textContent = files.length + " files";
       pRight.textContent = "";
 
-      if (files.length === 0) {
-        setState("err", "No files found under " + parsed.pathname);
-        allList.clear();
+      if(!files.length){ setStatus("err", "No .js files"); busy(0); return; }
+      render(files);
+      metaEl.textContent = files.length + " files";
+      chipEl.textContent = files.length + " files";
+      setStatus("ok", "Found " + files.length);
+      busy(0);
+    }).catch(function(e){
+      barEl.classList.remove("indet");
+      barEl.classList.add("fail");
+      setStatus("err", "Failed: " + e.message);
+      busy(0);
+    });
+  }
+
+  function doZip(){
+    var sel = items.filter(function(f){ return f.checked; });
+    if(!sel.length){ setStatus("err", "None selected"); return; }
+    busy(1);
+    showProgress(true);
+    var files = [], i = 0, ok = 0, fail = 0;
+    var proxy = proxyToggle.checked;
+    function next(){
+      if(i >= sel.length){
+        if(!files.length){ setStatus("err", "All failed"); busy(0); return; }
+        var z = makeZip(files);
+        var parts = new URL(dirI.value.trim()).pathname.split("/").filter(Boolean);
+        var base = parts.length ? parts[parts.length - 1] : "js";
+        dl(z, safeName(base) + ".zip");
+        chipEl.textContent = fmt(z.size);
+        setStatus(ok ? "ok" : "err", "ZIP " + fmt(z.size) + " - " + ok + " ok, " + fail + " failed");
+        busy(0);
         return;
       }
-
-      allList.render(files);
-      setState("ok",
-        "Found " + files.length + " file" + (files.length === 1 ? "" : "s") +
-        (recurse && dirs ? " across " + dirs + " dir" + (dirs === 1 ? "" : "s") : "")
-      );
-      sizeChip.textContent = files.length + " files";
-    } catch (err) {
-      console.error(err);
-      bar.classList.remove("indet", "done"); bar.classList.add("fail");
-      barFill.style.width = "100%";
-      setState("err", "Failed: " + (err && err.message ? err.message : String(err)));
-      sizeChip.textContent = "failed";
-    } finally {
-      busyAll(false);
-    }
-  }
-
-  async function runAllZip() {
-    const proxy    = allUseProxy.checked;
-    const selected = allList.selected();
-    if (selected.length === 0) { setState("err", "No files selected."); return; }
-
-    busyAll(true);
-    setState("loading", "Downloading " + selected.length + " file" + (selected.length === 1 ? "" : "s") + "…");
-    showProgress(true);
-
-    const zipFiles = [];
-    let okCount = 0, failCount = 0;
-
-    for (let i = 0; i < selected.length; i++) {
-      const f = selected[i];
-      allList.updateRow(f, "loading");
-      setState("loading", "File " + (i + 1) + "/" + selected.length + " · " + f.relPath);
+      var f = sel[i];
+      setStatus("load", "File " + (i + 1) + "/" + sel.length + " - " + f.name);
       resetProgress();
-      bar.classList.add("indet");
-      try {
-        const { blob } = await fetchWithProgress(buildFetchUrl(f.url, proxy), setProgress);
-        const data = new Uint8Array(await blob.arrayBuffer());
-        f.data = data; okCount++;
-        bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
-        allList.updateRow(f, "ok", data.length);
-        zipFiles.push({ name: f.relPath || f.basename, data });
-      } catch (err) {
-        failCount++;
-        bar.classList.remove("indet", "done"); bar.classList.add("fail");
-        allList.updateRow(f, "err");
-      }
+      barEl.classList.add("indet");
+      getWithProgress(fetchUrl(f.url, proxy), setProgress).then(function(r){
+        return r.blob.arrayBuffer().then(function(buf){
+          files.push({ name: f.name, data: new Uint8Array(buf) });
+          ok++;
+          barEl.classList.remove("indet");
+          barEl.classList.add("done");
+          barFill.style.width = "100%";
+        });
+      }).catch(function(){
+        fail++;
+        barEl.classList.remove("indet", "done");
+        barEl.classList.add("fail");
+      }).then(function(){ i++; next(); });
     }
-
-    if (zipFiles.length === 0) { setState("err", "All downloads failed."); busyAll(false); return; }
-
-    const zipBlob = buildZip(zipFiles);
-    const zipName = sanitizeFilename(
-      (new URL(allDirInput.value.trim()).pathname.split("/").filter(Boolean).pop() || "assets")
-    ) + ".zip";
-    triggerDownload(zipBlob, zipName);
-
-    allList.refs.meta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
-    sizeChip.textContent = fmtBytes(zipBlob.size);
-
-    setState(
-      failCount && !okCount ? "err" : "ok",
-      "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
-      (failCount ? " · " + failCount + " failed" : "")
-    );
-    busyAll(false);
+    next();
   }
 
-  /* ══════════════════════════════════════════════════════
-     TAB 3 — Remote JS
-     ══════════════════════════════════════════════════════ */
-  const jsDirInput  = $("jsDir");
-  const jsUseProxy  = $("jsUseProxy");
-  const jsListBtn   = $("jsListBtn");
-  const jsListLabel = $("jsListLabel");
-  const jsZipBtn    = $("jsZipBtn");
-
-  jsDirInput.value = DEFAULT_JS_DIR;
-
-  const remoteList = makeFileList({
-    cardId: "jsFilesCard", listId: "jsFilesList", metaId: "jsFilesMeta",
-    selectAllId: "jsSelectAll", countId: "jsCount", actionsCardId: "jsActionsCard",
+  btn.addEventListener("click", run);
+  zipBtn.addEventListener("click", doZip);
+  dirI.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); run(); } });
+  allCb.addEventListener("change", function(){
+    items.forEach(function(f){ f.checked = allCb.checked; if(f._cb) f._cb.checked = allCb.checked; });
+    upd();
   });
+})();
+console.log("[boot] block 4 ok");
+</script>
 
-  function busyRemote(on) {
-    jsListBtn.disabled = jsZipBtn.disabled = jsDirInput.disabled = jsUseProxy.disabled = on;
-    remoteList.refs.selectAll.disabled = on;
+<!-- ===== BLOCK 5: Tab 4 Local JS ===== -->
+<script>
+(function(){
+  "use strict";
 
-    const existing = jsListBtn.querySelector(".spinner");
-    if (on) {
-      if (!existing) {
-        const s = document.createElement("span");
+  var dirI = $("localDir"), recToggle = $("localRecursive");
+  var btn = $("localListBtn"), lbl = $("localListLabel"), zipBtn = $("localZipBtn");
+  var card = $("localFilesCard"), list = $("localFilesList"), metaEl = $("localFilesMeta");
+  var allCb = $("localSelectAll"), countEl = $("localCount"), actionsCard = $("localActionsCard");
+
+  dirI.value = "assets/js";
+  var items = [];
+
+  function busy(on){
+    btn.disabled = zipBtn.disabled = dirI.disabled = recToggle.disabled = allCb.disabled = on;
+    var s = btn.querySelector(".spinner");
+    if(on){
+      if(!s){
+        s = document.createElement("span");
         s.className = "spinner";
-        jsListBtn.insertBefore(s, jsListLabel);
+        btn.insertBefore(s, lbl);
       }
-      jsListLabel.textContent = "Working…";
+      lbl.textContent = "Working...";
     } else {
-      if (existing) existing.remove();
-      jsListLabel.textContent = "List JS files";
+      if(s) s.parentNode.removeChild(s);
+      lbl.textContent = "List JS files";
     }
   }
 
-  async function listRemoteJs(dirUrl, viaProxy) {
-    const fetchUrl = buildFetchUrl(dirUrl, viaProxy);
-    const res = await fetch(fetchUrl, {
-      method: "GET", mode: "cors", credentials: "omit",
-      cache: "no-cache", redirect: "follow"
+  function render(files){
+    list.textContent = "";
+    items = files.map(function(f){ f.checked = true; return f; });
+    items.forEach(function(f){
+      var li = document.createElement("li");
+      li.className = "font-item";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = true;
+      cb.addEventListener("change", function(){ f.checked = cb.checked; upd(); });
+      var nm = document.createElement("span");
+      nm.className = "fname";
+      nm.textContent = f.name;
+      var sz = document.createElement("span");
+      sz.className = "fsize";
+      sz.textContent = f.size ? fmt(f.size) : "";
+      li.appendChild(cb); li.appendChild(nm); li.appendChild(sz);
+      list.appendChild(li);
+      f._cb = cb;
     });
-
-    if (!res.ok) {
-      let detail = "";
-      try {
-        const ct = res.headers.get("content-type") || "";
-        if (ct.includes("application/json")) {
-          const j = await res.json();
-          detail = " — " + (j.error || j.detail || JSON.stringify(j));
-        }
-      } catch (_) {}
-      throw new Error("HTTP " + res.status + " " + res.statusText + detail);
-    }
-
-    const ct   = res.headers.get("content-type") || "";
-    const html = await res.text();
-
-    if (!/html/i.test(ct) && !/<a\s/i.test(html)) {
-      throw new Error("Server did not return an HTML directory listing.");
-    }
-
-    const entries = parseIndexHtml(html, dirUrl);
-    const out = entries
-      .filter((e) => !e.isDir && /\.js(\?|#|$)/i.test(e.url))
-      .map((e) => ({ url: e.url, basename: e.basename, isDir: false }));
-
-    out.sort((a, b) => a.basename.localeCompare(b.basename));
-    return out;
+    card.hidden = false;
+    actionsCard.hidden = false;
+    upd();
   }
 
-  async function runRemoteList() {
-    const rawUrl = jsDirInput.value.trim();
-    const proxy  = jsUseProxy.checked;
+  function upd(){
+    var s = items.filter(function(f){ return f.checked; }).length;
+    countEl.textContent = s + " / " + items.length;
+    allCb.checked = s > 0 && s === items.length;
+    allCb.indeterminate = s > 0 && s < items.length;
+  }
 
-    let parsed;
-    try { parsed = new URL(rawUrl); }
-    catch { setState("err", "Invalid directory URL."); jsDirInput.focus(); return; }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      setState("err", "Only http(s) URLs are supported."); return;
-    }
-
-    busyRemote(true);
-    setState("loading", "Listing " + parsed.hostname + "…");
+  function run(){
+    var d = dirI.value.trim() || "/";
+    busy(1);
     showProgress(true);
     resetProgress();
-    bar.classList.add("indet");
-    remoteList.clear();
+    barEl.classList.add("indet");
+    card.hidden = true;
+    actionsCard.hidden = true;
+    list.textContent = "";
+    items = [];
+    setStatus("load", "Reading /public/" + d.replace(/^\/+/, ""));
 
-    try {
-      const files = await listRemoteJs(rawUrl, proxy);
-      bar.classList.remove("indet"); bar.classList.add("done");
+    var u = LIST_LOCAL + "?dir=" + encodeURIComponent(d) + (recToggle.checked ? "&recursive=1" : "");
+    getJSON(u).then(function(r){
+      if(!r.ok) throw new Error((r.data && r.data.error) || "HTTP " + r.status);
+      var files = [];
+      (r.data.files || []).forEach(function(f){
+        files.push({ url: f.path, name: f.name, size: f.size });
+      });
+
+      barEl.classList.remove("indet");
+      barEl.classList.add("done");
       barFill.style.width = "100%";
-      pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
-      pRight.textContent = "";
+      pLeft.textContent = files.length + " files";
 
-      if (files.length === 0) {
-        setState("err", "No .js files found in the directory listing.");
-        remoteList.clear();
-        return;
-      }
-
-      remoteList.render(files);
-      setState("ok", "Found " + files.length + " JS file" + (files.length === 1 ? "" : "s") + ".");
-      sizeChip.textContent = files.length + " files";
-    } catch (err) {
-      console.error(err);
-      bar.classList.remove("indet", "done"); bar.classList.add("fail");
-      barFill.style.width = "100%";
-      let msg = "Failed: " + (err && err.message ? err.message : String(err));
-      if (!proxy && err instanceof TypeError && /failed to fetch|networkerror/i.test(err.message)) {
-        msg += " — likely CORS. Enable the API proxy and try again.";
-      }
-      setState("err", msg);
-      sizeChip.textContent = "failed";
-    } finally {
-      busyRemote(false);
-    }
-  }
-
-  async function runRemoteZip() {
-    const proxy    = jsUseProxy.checked;
-    const selected = remoteList.selected();
-    if (selected.length === 0) { setState("err", "No files selected."); return; }
-
-    busyRemote(true);
-    setState("loading", "Downloading " + selected.length + " file" + (selected.length === 1 ? "" : "s") + "…");
-    showProgress(true);
-
-    const zipFiles = [];
-    let okCount = 0, failCount = 0;
-
-    for (let i = 0; i < selected.length; i++) {
-      const f = selected[i];
-      remoteList.updateRow(f, "loading");
-      setState("loading", "File " + (i + 1) + "/" + selected.length + " · " + f.basename);
-      resetProgress();
-      bar.classList.add("indet");
-      try {
-        const { blob } = await fetchWithProgress(buildFetchUrl(f.url, proxy), setProgress);
-        const data = new Uint8Array(await blob.arrayBuffer());
-        f.data = data; okCount++;
-        bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
-        remoteList.updateRow(f, "ok", data.length);
-        zipFiles.push({ name: f.basename, data });
-      } catch (err) {
-        failCount++;
-        bar.classList.remove("indet", "done"); bar.classList.add("fail");
-        remoteList.updateRow(f, "err");
-      }
-    }
-
-    if (zipFiles.length === 0) { setState("err", "All downloads failed."); busyRemote(false); return; }
-
-    const zipBlob = buildZip(zipFiles);
-    const zipName = sanitizeFilename(
-      (new URL(jsDirInput.value.trim()).pathname.split("/").filter(Boolean).pop() || "js")
-    ) + ".zip";
-    triggerDownload(zipBlob, zipName);
-
-    remoteList.refs.meta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
-    sizeChip.textContent = fmtBytes(zipBlob.size);
-
-    setState(
-      failCount && !okCount ? "err" : "ok",
-      "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
-      (failCount ? " · " + failCount + " failed" : "")
-    );
-    busyRemote(false);
-  }
-
-  /* ══════════════════════════════════════════════════════
-     TAB 4 — Local JS
-     ══════════════════════════════════════════════════════ */
-  const localDirInput  = $("localDir");
-  const localRecursive = $("localRecursive");
-  const localListBtn   = $("localListBtn");
-  const localListLabel = $("localListLabel");
-  const localZipBtn    = $("localZipBtn");
-
-  localDirInput.value = DEFAULT_LOCAL_DIR;
-
-  const localList = makeFileList({
-    cardId: "localFilesCard", listId: "localFilesList", metaId: "localFilesMeta",
-    selectAllId: "localSelectAll", countId: "localCount", actionsCardId: "localActionsCard",
-  });
-
-  function busyLocal(on) {
-    localListBtn.disabled = localZipBtn.disabled =
-      localDirInput.disabled = localRecursive.disabled = on;
-    localList.refs.selectAll.disabled = on;
-
-    const existing = localListBtn.querySelector(".spinner");
-    if (on) {
-      if (!existing) {
-        const s = document.createElement("span");
-        s.className = "spinner";
-        localListBtn.insertBefore(s, localListLabel);
-      }
-      localListLabel.textContent = "Working…";
-    } else {
-      if (existing) existing.remove();
-      localListLabel.textContent = "List JS files";
-    }
-  }
-
-  async function fetchLocalList(dir, recursive) {
-    const url = LIST_LOCAL_PATH +
-      "?dir=" + encodeURIComponent(dir) +
-      (recursive ? "&recursive=1" : "");
-    const res = await fetch(url, { method: "GET", credentials: "same-origin", cache: "no-store" });
-    let payload;
-    try { payload = await res.json(); }
-    catch { throw new Error("Invalid JSON from " + LIST_LOCAL_PATH); }
-    if (!res.ok) throw new Error(payload.error || ("HTTP " + res.status));
-    return payload;
-  }
-
-  async function runLocalList() {
-    const dir       = localDirInput.value.trim() || "/";
-    const recursive = localRecursive.checked;
-
-    busyLocal(true);
-    setState("loading", "Reading /public/" + dir.replace(/^\/+/, "") + "…");
-    showProgress(true);
-    resetProgress();
-    bar.classList.add("indet");
-    localList.clear();
-
-    try {
-      const payload = await fetchLocalList(dir, recursive);
-      const files = (payload.files || []).map((f) => ({
-        url: f.path, path: f.path, name: f.name,
-        basename: f.name, size: f.size, relPath: f.name, isDir: false,
-      }));
-
-      bar.classList.remove("indet"); bar.classList.add("done");
-      barFill.style.width = "100%";
-      pLeft.textContent  = files.length + " file" + (files.length === 1 ? "" : "s");
-
-      if (files.length === 0) {
-        setState("err", "No .js files found in /public/" + dir.replace(/^\/+/, ""));
-        localList.clear();
-        return;
-      }
-
-      localList.render(files);
-      setState("ok",
-        "Found " + files.length + " JS file" + (files.length === 1 ? "" : "s") +
-        " in /public/" + dir.replace(/^\/+/, "")
-      );
-      sizeChip.textContent = files.length + " files";
-    } catch (err) {
-      console.error(err);
-      bar.classList.remove("indet", "done"); bar.classList.add("fail");
-      barFill.style.width = "100%";
-      setState("err", "Failed: " + (err && err.message ? err.message : String(err)));
-      sizeChip.textContent = "failed";
-    } finally {
-      busyLocal(false);
-    }
-  }
-
-  async function runLocalZip() {
-    const selected = localList.selected();
-    if (selected.length === 0) { setState("err", "No files selected."); return; }
-
-    busyLocal(true);
-    setState("loading", "Downloading " + selected.length + " file" + (selected.length === 1 ? "" : "s") + "…");
-    showProgress(true);
-
-    const zipFiles = [];
-    let okCount = 0, failCount = 0;
-
-    for (let i = 0; i < selected.length; i++) {
-      const f = selected[i];
-      localList.updateRow(f, "loading");
-      setState("loading", "File " + (i + 1) + "/" + selected.length + " · " + f.basename);
-      resetProgress();
-      bar.classList.add("indet");
-      try {
-        const { blob } = await fetchWithProgress(f.url, setProgress);
-        const data = new Uint8Array(await blob.arrayBuffer());
-        f.data = data; okCount++;
-        bar.classList.remove("indet"); bar.classList.add("done"); barFill.style.width = "100%";
-        localList.updateRow(f, "ok", data.length);
-        zipFiles.push({ name: f.basename, data });
-      } catch (err) {
-        failCount++;
-        bar.classList.remove("indet", "done"); bar.classList.add("fail");
-        localList.updateRow(f, "err");
-      }
-    }
-
-    if (zipFiles.length === 0) { setState("err", "All downloads failed."); busyLocal(false); return; }
-
-    const zipBlob = buildZip(zipFiles);
-    const zipName = sanitizeFilename(localDirInput.value.trim().split("/").pop() || "local") + ".zip";
-    triggerDownload(zipBlob, zipName);
-
-    localList.refs.meta.textContent = okCount + " ok" + (failCount ? " · " + failCount + " failed" : "");
-    sizeChip.textContent = fmtBytes(zipBlob.size);
-
-    setState(
-      failCount && !okCount ? "err" : "ok",
-      "ZIP saved “" + zipName + "” (" + fmtBytes(zipBlob.size) + ")" +
-      (failCount ? " · " + failCount + " failed" : "")
-    );
-    busyLocal(false);
-  }
-
-  /* ══════════════════════════════════════════════════════
-     ZIP writer (STORE-only)
-     ══════════════════════════════════════════════════════ */
-  const CRC_TABLE = (() => {
-    const t = new Uint32Array(256);
-    for (let n = 0; n < 256; n++) {
-      let c = n;
-      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-      t[n] = c >>> 0;
-    }
-    return t;
-  })();
-
-  function crc32(bytes) {
-    let c = 0xFFFFFFFF;
-    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
-    return (c ^ 0xFFFFFFFF) >>> 0;
-  }
-
-  function dosDateTime(d) {
-    const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
-    const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
-    return { date: date & 0xFFFF, time: time & 0xFFFF };
-  }
-
-  function buildZip(files) {
-    const now = dosDateTime(new Date());
-    const local = [], central = [];
-    let offset = 0;
-
-    for (const f of files) {
-      const nameBytes = encoder.encode(f.name);
-      const data = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
-      const crc = crc32(data);
-      const size = data.length;
-
-      const lh = new Uint8Array(30 + nameBytes.length);
-      const lv = new DataView(lh.buffer);
-      lv.setUint32(0, 0x04034b50, true);
-      lv.setUint16(4, 20, true);
-      lv.setUint16(6, 0, true);
-      lv.setUint16(8, 0, true);
-      lv.setUint16(10, now.time, true);
-      lv.setUint16(12, now.date, true);
-      lv.setUint32(14, crc, true);
-      lv.setUint32(18, size, true);
-      lv.setUint32(22, size, true);
-      lv.setUint16(26, nameBytes.length, true);
-      lv.setUint16(28, 0, true);
-      lh.set(nameBytes, 30);
-      local.push(lh, data);
-
-      const cd = new Uint8Array(46 + nameBytes.length);
-      const cv = new DataView(cd.buffer);
-      cv.setUint32(0, 0x02014b50, true);
-      cv.setUint16(4, 20, true);
-      cv.setUint16(6, 20, true);
-      cv.setUint16(8, 0, true);
-      cv.setUint16(10, 0, true);
-      cv.setUint16(12, now.time, true);
-      cv.setUint16(14, now.date, true);
-      cv.setUint32(16, crc, true);
-      cv.setUint32(20, size, true);
-      cv.setUint32(24, size, true);
-      cv.setUint16(28, nameBytes.length, true);
-      cv.setUint16(30, 0, true);
-      cv.setUint16(32, 0, true);
-      cv.setUint16(34, 0, true);
-      cv.setUint16(36, 0, true);
-      cv.setUint32(38, 0, true);
-      cv.setUint32(42, offset, true);
-      cd.set(nameBytes, 46);
-      central.push(cd);
-
-      offset += lh.length + data.length;
-    }
-
-    const cdSize = central.reduce((s, c) => s + c.length, 0);
-    const cdOffset = offset;
-
-    const eocd = new Uint8Array(22);
-    const ev = new DataView(eocd.buffer);
-    ev.setUint32(0, 0x06054b50, true);
-    ev.setUint16(4, 0, true);
-    ev.setUint16(6, 0, true);
-    ev.setUint16(8, central.length, true);
-    ev.setUint16(10, central.length, true);
-    ev.setUint32(12, cdSize, true);
-    ev.setUint32(16, cdOffset, true);
-    ev.setUint16(20, 0, true);
-
-    return new Blob([...local, ...central, eocd], { type: "application/zip" });
-  }
-
-  /* ── Event wiring ─────────────────────────────────────── */
-  goBtn.addEventListener("click", runCss);
-  allListBtn.addEventListener("click", runAllList);
-  allZipBtn.addEventListener("click", runAllZip);
-  jsListBtn.addEventListener("click", runRemoteList);
-  jsZipBtn.addEventListener("click", runRemoteZip);
-  localListBtn.addEventListener("click", runLocalList);
-  localZipBtn.addEventListener("click", runLocalZip);
-
-  [urlInput, fnameInput].forEach((el) => {
-    el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); runCss(); }
+      if(!files.length){ setStatus("err", "No .js files"); busy(0); return; }
+      render(files);
+      metaEl.textContent = files.length + " files";
+      chipEl.textContent = files.length + " files";
+      setStatus("ok", "Found " + files.length);
+      busy(0);
+    }).catch(function(e){
+      barEl.classList.remove("indet");
+      barEl.classList.add("fail");
+      setStatus("err", "Failed: " + e.message);
+      busy(0);
     });
-  });
-  allDirInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); runAllList(); }
-  });
-  jsDirInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); runRemoteList(); }
-  });
-  localDirInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); runLocalList(); }
-  });
+  }
 
-  let lastTouch = 0;
-  document.addEventListener("touchend", (e) => {
-    const now = Date.now();
-    if (now - lastTouch <= 300) e.preventDefault();
-    lastTouch = now;
-  }, { passive: false });
+  function doZip(){
+    var sel = items.filter(function(f){ return f.checked; });
+    if(!sel.length){ setStatus("err", "None selected"); return; }
+    busy(1);
+    showProgress(true);
+    var files = [], i = 0, ok = 0, fail = 0;
+    function next(){
+      if(i >= sel.length){
+        if(!files.length){ setStatus("err", "All failed"); busy(0); return; }
+        var z = makeZip(files);
+        var parts = dirI.value.trim().split("/").filter(Boolean);
+        var base = parts.length ? parts[parts.length - 1] : "local";
+        dl(z, safeName(base) + ".zip");
+        chipEl.textContent = fmt(z.size);
+        setStatus(ok ? "ok" : "err", "ZIP " + fmt(z.size) + " - " + ok + " ok, " + fail + " failed");
+        busy(0);
+        return;
+      }
+      var f = sel[i];
+      setStatus("load", "File " + (i + 1) + "/" + sel.length + " - " + f.name);
+      resetProgress();
+      barEl.classList.add("indet");
+      getWithProgress(f.url, setProgress).then(function(r){
+        return r.blob.arrayBuffer().then(function(buf){
+          files.push({ name: f.name, data: new Uint8Array(buf) });
+          ok++;
+          barEl.classList.remove("indet");
+          barEl.classList.add("done");
+          barFill.style.width = "100%";
+        });
+      }).catch(function(){
+        fail++;
+        barEl.classList.remove("indet", "done");
+        barEl.classList.add("fail");
+      }).then(function(){ i++; next(); });
+    }
+    next();
+  }
 
+  btn.addEventListener("click", run);
+  zipBtn.addEventListener("click", doZip);
+  dirI.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); run(); } });
+  allCb.addEventListener("change", function(){
+    items.forEach(function(f){ f.checked = allCb.checked; if(f._cb) f._cb.checked = allCb.checked; });
+    upd();
+  });
+})();
+console.log("[boot] block 5 ok");
+</script>
+
+<!-- ===== BLOCK 6: init ===== -->
+<script>
+(function(){
+  "use strict";
+  try {
+    initTabs();
+    setStatus("idle", "Ready.");
+    console.log("[boot] block 6 ok - all scripts loaded");
+  } catch(e){
+    console.error("init failed", e);
+  }
+})();
+</script>
+<!-- ===== BLOCK 7: filename auto-sync ===== -->
+<script>
+(function(){
+  "use strict";
+  var urlI = $("url"), fnameI = $("fname");
+  var touched = false;
+  fnameI.addEventListener("input", function(){ touched = true; });
+  urlI.addEventListener("input", function(){
+    if(touched) return;
+    try {
+      var u = new URL(urlI.value.trim());
+      var seg = u.pathname.split("/").filter(Boolean).pop();
+      fnameI.value = seg ? decodeURIComponent(seg) : "download.css";
+    } catch(e){}
+  });
+  console.log("[boot] block 7 ok - filename auto-sync");
 })();
 </script>
 </body>
